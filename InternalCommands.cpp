@@ -48,8 +48,9 @@ void InternalCommands::clearScreen()
        }
     }
     
+    char clear[6] = "clear";
     //Tells terminal to clear the screen.
-    putp(tigetstr("clear"));
+    putp(tigetstr(clear));
 }
 
 /**
@@ -81,7 +82,7 @@ void InternalCommands::echoCommand(char * eCmd)
    int firstElement = eCommand.find("echo");
    //Remove the subsring "echoc"
    eCommand.erase(firstElement, 4);
-   cout <<"xsh >> "<< eCommand;
+   cout <<eCommand;
 
 }
 
@@ -214,6 +215,6 @@ int InternalCommands::chdirCommand(vector<string> args)
 		return -2; //-2 for incorrect usage
 	}
 	else {
-		return (chdir(args.at(1))); //returns 0 for success, -1 for failure
+		return (chdir(args.at(1).c_str())); //returns 0 for success, -1 for failure
 	}
 }
