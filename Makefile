@@ -8,3 +8,5 @@ all: $(SOURCES) $(EXECUTABLE)
 $(EXECUTABLE):
 	$(CC) -o  $@ $(SOURCES) -lcurses
 
+clean:
+	rm  *.o xsh* *.d

@@ -106,12 +106,12 @@ void InternalCommands::historyCommand()
  *
  */
 
-string getHistoryCommand(int n)
+string InternalCommands::getHistoryCommand(int n)
 {
 	//if negative, get length - n 
 	if(n < 0)
 	{
-		return getHistoryCommand(historyList.length() + n);
+		return getHistoryCommand(historyList.size() + n);
 	}
 	//else just return nth element
 	else
