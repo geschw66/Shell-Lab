@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <vector>
 #include <map>
 
@@ -51,7 +52,7 @@ class InternalCommands
   void environCmd();
   
   //replace enviroment variables with their string counterparts
-  string replaceEnvironCmds(char * line)
+  string replaceEnvironCmds(char * line);
   
   //chdir: change current directory to W
   int chdirCommand(vector<string> args);

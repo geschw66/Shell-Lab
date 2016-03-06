@@ -182,14 +182,14 @@ string InternalCommands::getHistoryCommand(int n)
 	string delim = " ";
     
 	//get rid of the export cmd
- 	eCommand.erase(eCommand.find("export"), 6);
-	
+ 	eCommand.erase(eCommand.find("export"), 7);
+
 	//get W1 and W2
 	int pos = eCommand.find(delim);
 	string W1 = eCommand.substr(0, pos);
 	eCommand.erase(0, pos + delim.length());
 	pos = eCommand.find(delim);
-	string W2 = eCommand;
+	string W2 = eCommand.substr(0, eCommand.length() - 1);
 
 	//make W1 all caps
 	transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
@@ -205,9 +205,10 @@ string InternalCommands::getHistoryCommand(int n)
  {
 	string eCommand = cmd;
 	//get rid of the unexport cmd
-  	eCommand.erase(eCommand.find("unexport"), 8);
+  	eCommand.erase(eCommand.find("unexport"), 9);
 	//Get W1
 	string W1 = eCommand;
+	W1 = W1.substr(0, W1.length()-1);
 	 
 	//make W1 all caps
 	transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
@@ -235,10 +236,10 @@ string InternalCommands::getHistoryCommand(int n)
  */
 string InternalCommands::replaceEnvironCmds(char * line)
 {
-	string eCommand = cmd;
-	char* delims = " \t\r\n\a"
+	string eCommand = line;
+	const char* delims = " \t\r\n\a";
 	char* token;
-	vector<string> tokens = new vector<string>();
+	vector<string> tokens;
 
     	//Use strtok to grab the next token from the line.
     	token = strtok(line, delims);
@@ -253,7 +254,7 @@ string InternalCommands::replaceEnvironCmds(char * line)
 	{
 		string temp = *it;
 		//if the first value is the character '$' search to see if the rest is there
-		if(temp != null && temp.at(0) == '$')
+		if(temp.at(0) == '$')
 		{
 			//strip off '$'
 			cout << "Stripping '$' from " << temp;
@@ -264,7 +265,7 @@ string InternalCommands::replaceEnvironCmds(char * line)
 			//if it exists in the map, replace it
 			if(environMap.count(temp) > 0)
 			{
-				it->replace(it->begin(), it->end(), environMap[temp];
+				it->replace(it->begin(), it->end(), environMap[temp]);
 				cout << "temp: " << temp << " & environMap[temp]: " << environMap[temp] << endl;
 			}
 		}
