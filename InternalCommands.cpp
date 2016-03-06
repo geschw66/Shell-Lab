@@ -64,6 +64,7 @@ void InternalCommands::clearScreen()
      //start with second element
      it++;
      //iterate until end
+     /*pseudocode, syntax is entirely wrong
      for (; it != args.end(); ++it)
      {
      	char arg = *it.at(0);
@@ -89,6 +90,7 @@ void InternalCommands::clearScreen()
      	cout << final << " ";
      }
      cout << endl;
+     */
  }
 
 /**
