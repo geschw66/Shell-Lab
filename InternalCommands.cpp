@@ -75,24 +75,29 @@ void InternalCommands::clearScreen()
      		if (arg.length() > 1) {
      			if (arg.at(1) == '$') {
      				//pid of shell
-     				arg = "Shell PID goes here";
+     				cout << ::getpid() << " ";
      			}
      			else if (arg.at(1) == '?') {
      				//Decimal value returned by last foreground command
      				arg = "Return value of last foreground command goes here";
+     				cout << arg << " ";
 			}
      			else if (arg.at(1) == '!') {
      				//pid of last background command
      				arg = "PID of last background command goes here";
+     				cout << arg << " ";
 			}
      			else {
 				arg = "Should try to do variable substitution here if symbol is defined";
+     				cout << arg << " ";
      				//variable substitution
      				//final = LocalVars.at(*it.substr(1));
      			}
      		}
      	}
-     	cout << arg << " ";
+     	else {
+     		cout << arg << " ";
+     	}
      }
      cout << endl;
 }
