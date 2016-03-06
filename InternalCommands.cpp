@@ -64,34 +64,38 @@ void InternalCommands::clearScreen()
      //start with second element
      it++;
      //iterate until end
-     /*pseudocode, syntax is entirely wrong
      for (; it != args.end(); ++it)
      {
-     	char arg = *it.at(0);
-     	string final = *it;
-     	if (arg == "$") {
+     	string arg = *it;
+     	
+	char c = arg.at(0);
+
+	if (c == '$') {
      		//variable substitution as necessary
-     		if (*it.length() > 1) {
-     			if (*it.at(1) == "$") {
+     		if (arg.length() > 1) {
+     			if (arg.at(1) == '$') {
      				//pid of shell
+     				arg = "Shell PID goes here";
      			}
-     			else if (*it.at(1) == "?") {
+     			else if (arg.at(1) == '?') {
      				//Decimal value returned by last foreground command
-     			}
-     			else if (*it.at(1) == "!") {
+     				arg = "Return value of last foreground command goes here";
+			}
+     			else if (arg.at(1) == '!') {
      				//pid of last background command
-     			}
+     				arg = "PID of last background command goes here";
+			}
      			else {
+				arg = "Should try to do variable substitution here if symbol is defined";
      				//variable substitution
      				//final = LocalVars.at(*it.substr(1));
      			}
      		}
      	}
-     	cout << final << " ";
+     	cout << arg << " ";
      }
      cout << endl;
-     */
- }
+}
 
 /**
  * echoCommand(vector <string> cmd)
