@@ -82,7 +82,7 @@ void InternalCommands::clearScreen()
      			}
      			else {
      				//variable substitution
-     				final
+     				//final = LocalVars.at(*it.substr(1));
      			}
      		}
      	}
