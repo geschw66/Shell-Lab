@@ -6,5 +6,7 @@ EXECUTABLE=xsh
 all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE):
-	$(CC) -o $@ $(SOURCES) 
+	$(CC) -o  $@ $(SOURCES) -lcurses
 
+clean:
+	rm  *.o xsh* *.d

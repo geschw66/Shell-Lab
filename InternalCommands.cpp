@@ -48,8 +48,9 @@ void InternalCommands::clearScreen()
        }
     }
     
+    char clear[6] = "clear";
     //Tells terminal to clear the screen.
-    putp(tigetstr("clear"));
+    putp(tigetstr(clear));
 }
 
 /**
@@ -63,10 +64,33 @@ void InternalCommands::clearScreen()
      //start with second element
      it++;
      //iterate until end
+     /*pseudocode, syntax is entirely wrong
      for (; it != args.end(); ++it)
      {
-     	cout << *it << endl;
+     	char arg = *it.at(0);
+     	string final = *it;
+     	if (arg == "$") {
+     		//variable substitution as necessary
+     		if (*it.length() > 1) {
+     			if (*it.at(1) == "$") {
+     				//pid of shell
+     			}
+     			else if (*it.at(1) == "?") {
+     				//Decimal value returned by last foreground command
+     			}
+     			else if (*it.at(1) == "!") {
+     				//pid of last background command
+     			}
+     			else {
+     				//variable substitution
+     				//final = LocalVars.at(*it.substr(1));
+     			}
+     		}
+     	}
+     	cout << final << " ";
      }
+     cout << endl;
+     */
  }
 
 /**
@@ -81,7 +105,7 @@ void InternalCommands::echoCommand(char * eCmd)
    int firstElement = eCommand.find("echo");
    //Remove the subsring "echoc"
    eCommand.erase(firstElement, 4);
-   cout <<"xsh >> "<< eCommand;
+   cout <<eCommand;
 
 }
 
@@ -105,12 +129,12 @@ void InternalCommands::historyCommand()
  *
  */
 
-string getHistoryCommand(int n)
+string InternalCommands::getHistoryCommand(int n)
 {
 	//if negative, get length - n 
 	if(n < 0)
 	{
-		return getHistoryCommand(historyList.length() + n);
+		return getHistoryCommand(historyList.size() + n);
 	}
 	//else just return nth element
 	else
@@ -259,6 +283,6 @@ int InternalCommands::chdirCommand(vector<string> args)
 		return -2; //-2 for incorrect usage
 	}
 	else {
-		return (chdir(args.at(1))); //returns 0 for success, -1 for failure
+		return (chdir(args.at(1).c_str())); //returns 0 for success, -1 for failure
 	}
 }
