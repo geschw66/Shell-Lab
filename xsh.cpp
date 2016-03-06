@@ -133,6 +133,7 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
 			// try
 			// {
 				 sscanf(args.at(1).c_str(), "%d", &historyItem);
+				 historyItem--;
 			// }
 			// catch(Exception *e)
 			// {
@@ -142,7 +143,7 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
 			// }
 		 }
 		 //get history command, recall this function
-		 status = HandleInput((char *)ic->getHistoryCommand(historyItem-1).c_str(), bt, ic);
+		 status = HandleInput((char *)ic->getHistoryCommand(historyItem).c_str(), bt, ic);
          args.clear();
 
 		 //do not save repeat command to history list, this mimicks the bang command in linux
