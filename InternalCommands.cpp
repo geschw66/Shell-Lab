@@ -66,8 +66,29 @@ void InternalCommands::clearScreen()
      //iterate until end
      for (; it != args.end(); ++it)
      {
-     	cout << *it << endl;
+     	char arg = *it.at(0);
+     	string final = *it;
+     	if (arg == "$") {
+     		//variable substitution as necessary
+     		if (*it.length() > 1) {
+     			if (*it.at(1) == "$") {
+     				//pid of shell
+     			}
+     			else if (*it.at(1) == "?") {
+     				//Decimal value returned by last foreground command
+     			}
+     			else if (*it.at(1) == "!") {
+     				//pid of last background command
+     			}
+     			else {
+     				//variable substitution
+     				//final = LocalVars.at(*it.substr(1));
+     			}
+     		}
+     	}
+     	cout << final << " ";
      }
+     cout << endl;
  }
 
 /**
@@ -155,21 +176,23 @@ string InternalCommands::getHistoryCommand(int n)
  */
  void InternalCommands::exportCmd(char * cmd)
  {
-	 string eCommand = cmd;
-	 string delim = " ";
-     //get rid of the export cmd
-     eCommand.erase(eCommand.find("export"), 6);
-	 //get W1 and W2
-	 int pos = eCommand.find(delim);
-	 string W1 = eCommand.substr(0, pos);
-	 eCommand.erase(0, pos + delim.length());
-	 pos = eCommand.find(delim);
-	 string W2 = eCommand;
+	string eCommand = cmd;
+	string delim = " ";
+    
+	//get rid of the export cmd
+ 	eCommand.erase(eCommand.find("export"), 6);
+	
+	//get W1 and W2
+	int pos = eCommand.find(delim);
+	string W1 = eCommand.substr(0, pos);
+	eCommand.erase(0, pos + delim.length());
+	pos = eCommand.find(delim);
+	string W2 = eCommand;
 
-	 //make W1 all caps
-	 transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
-	 //add W2 to index W1 of environMap
-	 environMap[W1] = W2;
+	//make W1 all caps
+	transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
+	//add W2 to index W1 of environMap
+	environMap[W1] = W2;
  }
 
   /**
@@ -178,16 +201,16 @@ string InternalCommands::getHistoryCommand(int n)
  */
  void InternalCommands::unexportCmd(char * cmd)
  {
-	 string eCommand = cmd;
-	 //get rid of the unexport cmd
-     eCommand.erase(eCommand.find("unexport"), 8);
-	 //Get W1
-	 string W1 = eCommand;
+	string eCommand = cmd;
+	//get rid of the unexport cmd
+  	eCommand.erase(eCommand.find("unexport"), 8);
+	//Get W1
+	string W1 = eCommand;
 	 
-	 //make W1 all caps
-	 transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
-     //remove W1 from map if it exists
-	 environMap.erase(W1);
+	//make W1 all caps
+	transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
+     	//remove W1 from map if it exists
+	environMap.erase(W1);
  }
 
  /**
@@ -203,6 +226,49 @@ string InternalCommands::getHistoryCommand(int n)
 		 cout << it->first << "=" << it->second << endl;
      }
  }
+
+/*
+ * replaceEnvironCmds(string)
+ * replace enviroment variables with their string counterparts
+ */
+string InternalCommands::replaceEnvironCmds(char * line)
+{
+	string eCommand = cmd;
+	char* delims = " \t\r\n\a"
+	char* token;
+	vector<string> tokens = new vector<string>();
+
+    	//Use strtok to grab the next token from the line.
+    	token = strtok(line, delims);
+    	while (token != NULL)
+    	{
+        	tokens.push_back(token);
+        	token = strtok(NULL, delims);
+    	}
+
+	//scan through tokens, replace any environment variables with its value
+	for(vector<string>::iterator it = tokens.begin(); it != tokens.end() ; it++)
+	{
+		string temp = *it;
+		//if the first value is the character '$' search to see if the rest is there
+		if(temp != null && temp.at(0) == '$')
+		{
+			//strip off '$'
+			cout << "Stripping '$' from " << temp;
+			temp.erase(temp.begin());
+			cout << "= " << temp << endl;
+			//make all caps
+			transform(temp.begin(), temp.end(), temp.begin(), ::toupper);
+			//if it exists in the map, replace it
+			if(environMap.count(temp) > 0)
+			{
+				it->replace(it->begin(), it->end(), environMap[temp];
+				cout << "temp: " << temp << " & environMap[temp]: " << environMap[temp] << endl;
+			}
+		}
+	}
+}
+
 
 /**
  * chdir(vector<string> args)
