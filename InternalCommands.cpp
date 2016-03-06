@@ -66,8 +66,29 @@ void InternalCommands::clearScreen()
      //iterate until end
      for (; it != args.end(); ++it)
      {
-     	cout << *it << endl;
+     	char arg = *it.at(0);
+     	string final = *it;
+     	if (arg == "$") {
+     		//variable substitution as necessary
+     		if (*it.length() > 1) {
+     			if (*it.at(1) == "$") {
+     				//pid of shell
+     			}
+     			else if (*it.at(1) == "?") {
+     				//Decimal value returned by last foreground command
+     			}
+     			else if (*it.at(1) == "!") {
+     				//pid of last background command
+     			}
+     			else {
+     				//variable substitution
+     				final
+     			}
+     		}
+     	}
+     	cout << final << " ";
      }
+     cout << endl;
  }
 
 /**
