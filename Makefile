@@ -13,6 +13,9 @@ cleanLinux:
 	rm xsh
 
 cleanCgwyn:
-	rm xsh.exe
+	if [ -a xsh.exe ] ; \
+    then \
+	rm xsh.exe; \
+ 	fi;
 
 	

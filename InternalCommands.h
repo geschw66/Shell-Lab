@@ -66,6 +66,9 @@ class InternalCommands
   map <string, string> environMap;
   unsigned int longestIndex;
 
+  //private functions:
+  string findMapValue(const string key);
+
 };
 
 #endif

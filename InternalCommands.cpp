@@ -59,48 +59,57 @@ void InternalCommands::clearScreen()
  * 	show W1 W2 ...: display the word(s)
  * 	followed by a newline
  */
- void InternalCommands::showCommand(vector<string> args)
- {
-     vector<string>::iterator it = args.begin();
-     //start with second element
-     it++;
-     //iterate until end
-     for (; it != args.end(); ++it)
-     {
-     	string arg = *it;
-     	
-	char c = arg.at(0);
+void InternalCommands::showCommand(vector<string> args) {
+	vector<string>::iterator it = args.begin();
+	int i = 1;
+	//start with second element
+	it++;
+	//iterate until end
+	for (; it != args.end(); ++it,i++) {
+		string arg = args.at(i);
 
-	if (c == '$') {
-     		//variable substitution as necessary
-     		if (arg.length() > 1) {
-     			if (arg.at(1) == '$') {
-     				//pid of shell
-     				cout << ::getpid() << " ";
-     			}
-     			else if (arg.at(1) == '?') {
-     				//Decimal value returned by last foreground command
-     				arg = "Return value of last foreground command goes here";
-     				cout << arg << " ";
+		char c = arg.at(0);
+
+		if (c == '$')
+		{
+			//variable substitution as necessary
+			if (arg.length() > 1)
+			{
+				if (arg.at(1) == '$')
+				{
+					//pid of shell
+					cout << ::getpid() << " ";
+				} else if (arg.at(1) == '?')
+				{
+					//Decimal value returned by last foreground command
+					arg = "Return value of last foreground command goes here";
+					cout << arg << " ";
+				} else if (arg.at(1) == '!')
+				{
+					//pid of last background command
+					arg = "PID of last background command goes here";
+					cout << arg << " ";
+				} else
+				{
+					cout << "Should try to do variable substitution here if symbol is defined"<<endl;
+                    string stripped = arg.substr(1, arg.size()- 1);
+                    map<string, string>::iterator isThere;
+
+					if((isThere = environMap.find(stripped)) != environMap.end())
+					{
+						cout <<isThere->second<<" ";
+					}else
+					{
+						cout << arg <<" ";
+					}
+
+				}
 			}
-     			else if (arg.at(1) == '!') {
-     				//pid of last background command
-     				arg = "PID of last background command goes here";
-     				cout << arg << " ";
-			}
-     			else {
-				arg = "Should try to do variable substitution here if symbol is defined";
-     				cout << arg << " ";
-     				//variable substitution
-     				//final = LocalVars.at(*it.substr(1));
-     			}
-     		}
-     	}
-     	else {
-     		cout << arg << " ";
-     	}
-     }
-     cout << endl;
+		} else {
+			cout << arg << " ";
+		}
+	}
+	cout << endl;
 }
 
 /**
@@ -317,4 +326,15 @@ int InternalCommands::chdirCommand(vector<string> args)
 	else {
 		return (chdir(args.at(1).c_str())); //returns 0 for success, -1 for failure
 	}
+}
+
+/*
+ * wrapper for map.find(key)->value;
+ */
+string InternalCommands::findMapValue(string key)
+{
+	if(!key.empty())
+	 cout << environMap.find(key)->second<<endl;
+
+	return key;
 }
