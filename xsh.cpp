@@ -123,6 +123,10 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
 		 ic->environCmd();
          ic->addCmdToHistory(preservedLine);
 	 }
+     else if(args.at(0) == "dir"){
+         ic->dirCmd();
+         ic->addCmdToHistory(preservedLine);
+     }
 	 else if(args.at(0) =="repeat")
 	 {
 		 int historyItem = -1;
