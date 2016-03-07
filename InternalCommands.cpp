@@ -128,12 +128,13 @@ int InternalCommands::showLocalValue(const string& arg)
  */
 void InternalCommands::showCommand(vector<string> args) {
 	vector<string>::iterator it = args.begin();
-	int i = 1; //Why this and the args.at(i) instead of *it??
+
 	//start with second element
 	it++;
+
 	//iterate until end
-	for (; it != args.end(); ++it,i++) {
-		string arg = args.at(i);
+	for (; it != args.end(); ++it) {
+		string arg = *it;
 
 		char c = arg.at(0);
 
