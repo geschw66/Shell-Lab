@@ -66,22 +66,19 @@ void InternalCommands::pauseCmd(){
 /**
  * Searches through the environMap to find the given key value
  */
-string InternalCommands::showEnvironValue(const string& arg)
+int InternalCommands::showEnvironValue(const string& arg)
 {
 	//Case of where argument is in the form $ and string of chars ex: $TEST:
 	// will search value by the key TEST and return value.
-	string key = arg.substr(1, arg.size() - 1);
-	map<string, string>::iterator isThere;
+	string key = arg.substr(1);
+
+	int status = (environMap.find(key) != environMap.end());
 
 	//If the key exists print the value
-	if ((isThere = environMap.find(key)) != environMap.end()) {
-		cout << isThere->second << " ";
-
-		//else we simply print the arg as it was.
-	} else {
-		cout << arg << " ";
+	if (status) {
+		cout << environMap.at(key) << " ";
 	}
-	return key;
+	return status;
 }
 
 /**
@@ -91,7 +88,7 @@ string InternalCommands::showEnvironValue(const string& arg)
  */
 void InternalCommands::showCommand(vector<string> args) {
 	vector<string>::iterator it = args.begin();
-	int i = 1;
+	int i = 1; //Why this and the args.at(i) instead of *it??
 	//start with second element
 	it++;
 	//iterate until end
@@ -123,8 +120,14 @@ void InternalCommands::showCommand(vector<string> args) {
 				{
                     //Case of where argument is in the form $ and string of chars ex: $TEST:
 					// will search value by the key TEST and return value.
-
-					showEnvironValue(arg);
+					
+					// 1 for success, 0 for failure
+					int isEnvironVariable = showEnvironValue(arg);
+					if !(isEnvironVariable) {
+						//int isLocalVariable = showLocalValue(arg); //Not implemented yet
+						//if !(isLocalVariable ...
+						cout << arg << " ";
+					}
 				}
 			}
 		} else {

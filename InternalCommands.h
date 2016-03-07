@@ -69,7 +69,7 @@ class InternalCommands
 
   //private functions:
   string findMapValue(const string key);
-	string showEnvironValue(const string& arg);
+	int showEnvironValue(const string& arg);
 };
 
 #endif
