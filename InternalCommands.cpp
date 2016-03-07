@@ -110,6 +110,18 @@ int InternalCommands::showEnvironValue(const string& arg)
 }
 
 /**
+ * Searches through localMap for a value, given a key
+ */
+int InternalCommands::showLocalValue(const string& arg)
+{
+	string key = arg.substr(1);
+	int status = (localMap.find(key) != localMap.end());
+	if (status) {
+		cout << localMap.at(key) << " ";
+	}
+	return status;
+}
+/**
  * showCommand(vector <string> args)
  * 	show W1 W2 ...: display the word(s)
  * 	followed by a newline
@@ -149,10 +161,15 @@ void InternalCommands::showCommand(vector<string> args) {
                     //Case of where argument is in the form $ and string of chars ex: $TEST:
 					// will search value by the key TEST and return value.
 
-					showEnvironValue(arg);
+					if (!showEnvironValue(arg)) {
+						if (!showLocalValue(arg)) {
+							cout << arg << " ";
+						} 
+					}
 				}
 			}
-		} else {
+		}
+		else {
 			cout << arg << " ";
 		}
 	}
