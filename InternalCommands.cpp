@@ -55,6 +55,15 @@ void InternalCommands::clearScreen()
 }
 
 /**
+ * pauseCmd()
+ * pause the shell until the Enter Key is pressed;
+ */
+void InternalCommands::pauseCmd(){
+    cout<< "Shell Paused. Press Enter to Continue" <<endl;
+    cin.ignore();
+}
+
+/**
  * showCommand(vector <string> args)
  * 	show W1 W2 ...: display the word(s)
  * 	followed by a newline
