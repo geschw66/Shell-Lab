@@ -200,7 +200,7 @@ void InternalCommands::setCmd(char * cmd, vector<string> args){
     string eCommand = cmd;
     string delim = " ";
     
-    //get rid of the export cmd
+    //get rid of the set cmd
     eCommand.erase(eCommand.find("set"), 4);
     
     //get W1 and W2
@@ -212,15 +212,14 @@ void InternalCommands::setCmd(char * cmd, vector<string> args){
     
     //make W1 all caps
     transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
-    //add W2 to index W1 of environMap
-        cout << W1 << W2 <<endl;
+    //add W2 to index W1 of localMap
     localMap[W1] = W2;
     }
 }
 
 void InternalCommands::unsetCmd(char * cmd){
     string eCommand = cmd;
-    //get rid of the unexport cmd
+    //get rid of the unset cmd
     eCommand.erase(eCommand.find("unset"), 6);
     //Get W1
     string W1 = eCommand;
@@ -228,7 +227,7 @@ void InternalCommands::unsetCmd(char * cmd){
     
     //make W1 all caps
     transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
-    //remove W1 from map if it exists
+    //remove W1 from localMap if it exists
     localMap.erase(W1);
 }
 
