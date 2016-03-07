@@ -107,6 +107,8 @@ string InternalCommands::showEnvironValue(const string& arg)
 		cout << isThere->second << " ";
 
     //If the key is set locally print the value
+        
+    //This could be its own method or command if we want to seperate it. Or, use a flag for showing environ vs local variables. ex: show -e : show environ, show -l : show local, show : show all
 	}
     else if((isThere = localMap.find(key)) != localMap.end()){
         cout << "local:" <<endl;
