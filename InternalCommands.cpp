@@ -8,7 +8,10 @@
 //
 //- - - - - - - - - - - - - - - - - - - - - -
 #include <locale>
+#include <iostream>
+#include <fstream>
 #include <sstream>
+#include <string>
 #include <iomanip>
 #include <algorithm>
 #include <unistd.h>
@@ -28,7 +31,32 @@ InternalCommands::InternalCommands():longestIndex(0)
  */
 InternalCommands::~InternalCommands(){}
 
-/*
+/**
+ * setEnvVars();
+ * set the environmental variables (exported vars) from external file storage
+*/
+void InternalCommands::setEnvVars(){
+    ifstream envVars("./envVars.txt");
+    if(envVars.is_open()){
+        string line;
+        while(getline(envVars, line)){
+            if(!line.empty()){
+                vector<string> kv;
+                istringstream iss(line);
+                string temp;
+                while(iss >> temp){
+                    kv.push_back(temp);
+                }
+                
+                environMap[kv.at(0)]= kv.at(1);
+                
+                
+            }
+        }
+        //environCmd();
+    }
+}
+/**
 * clearScreen():
 * 	clr: Clear the screen and display a new 
 * 	command line prompt at the top.
@@ -82,6 +110,18 @@ int InternalCommands::showEnvironValue(const string& arg)
 }
 
 /**
+ * Searches through localMap for a value, given a key
+ */
+int InternalCommands::showLocalValue(const string& arg)
+{
+	string key = arg.substr(1);
+	int status = (localMap.find(key) != localMap.end());
+	if (status) {
+		cout << localMap.at(key) << " ";
+	}
+	return status;
+}
+/**
  * showCommand(vector <string> args)
  * 	show W1 W2 ...: display the word(s)
  * 	followed by a newline
@@ -120,18 +160,15 @@ void InternalCommands::showCommand(vector<string> args) {
 				{
                     //Case of where argument is in the form $ and string of chars ex: $TEST:
 					// will search value by the key TEST and return value.
-					
-					// 1 for success, 0 for failure
-					int isEnvironVariable = showEnvironValue(arg);
-					if (!isEnvironVariable)
-					{
-						//int isLocalVariable = showLocalValue(arg); //Not implemented yet
-						//if !(isLocalVariable ...
-						cout << arg << " ";
+					if (!showEnvironValue(arg)) {
+						if (!showLocalValue(arg)) {
+							cout << arg << " ";
+						} 
 					}
 				}
 			}
-		} else {
+		}
+		else {
 			cout << arg << " ";
 		}
 	}
@@ -149,9 +186,53 @@ void InternalCommands::echoCommand(char * eCmd)
    string eCommand = eCmd;
    int firstElement = eCommand.find("echo");
    //Remove the subsring "echoc"
-   eCommand.erase(firstElement, 4);
+   eCommand.erase(firstElement, 5);
    cout <<eCommand;
 
+}
+
+/**
+ * void setCmd()
+ * set the value of local variables stored in localMap
+ */
+void InternalCommands::setCmd(char * cmd, vector<string> args){
+    
+    if(args.size() != 3){
+        cout << "usage: set W1 W2" <<endl;
+    }
+    else {
+    string eCommand = cmd;
+    string delim = " ";
+    
+    //get rid of the set cmd
+    eCommand.erase(eCommand.find("set"), 4);
+    
+    //get W1 and W2
+    int pos = eCommand.find(delim);
+    string W1 = eCommand.substr(0, pos);
+    eCommand.erase(0, pos + delim.length());
+    pos = eCommand.find(delim);
+    string W2 = eCommand.substr(0, eCommand.length() - 1);
+    
+    //make W1 all caps
+    transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
+    //add W2 to index W1 of localMap
+    localMap[W1] = W2;
+    }
+}
+
+void InternalCommands::unsetCmd(char * cmd){
+    string eCommand = cmd;
+    //get rid of the unset cmd
+    eCommand.erase(eCommand.find("unset"), 6);
+    //Get W1
+    string W1 = eCommand;
+    W1 = W1.substr(0, W1.length()-1);
+    
+    //make W1 all caps
+    transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
+    //remove W1 from localMap if it exists
+    localMap.erase(W1);
 }
 
 /**
@@ -221,25 +302,41 @@ string InternalCommands::getHistoryCommand(int n)
  * exportCmd(vector <string> cmd)
  *	export <W1> <W2>: set (store) <W2> in map under index <W1>
  */
- void InternalCommands::exportCmd(char * cmd)
- {
-	string eCommand = cmd;
-	string delim = " ";
+ void InternalCommands::exportCmd(char * cmd, vector<string> args)
+ {   if(args.size() != 3){
+         cout << "usage: Export W1 W2" <<endl;
+     }
+     else {
+         string eCommand = cmd;
+         string delim = " ";
     
-	//get rid of the export cmd
- 	eCommand.erase(eCommand.find("export"), 7);
+         //get rid of the export cmd
+         eCommand.erase(eCommand.find("export"), 7);
 
-	//get W1 and W2
-	int pos = eCommand.find(delim);
-	string W1 = eCommand.substr(0, pos);
-	eCommand.erase(0, pos + delim.length());
-	pos = eCommand.find(delim);
-	string W2 = eCommand.substr(0, eCommand.length() - 1);
+         //get W1 and W2
+         int pos = eCommand.find(delim);
+         string W1 = eCommand.substr(0, pos);
+         eCommand.erase(0, pos + delim.length());
+         pos = eCommand.find(delim);
+         string W2 = eCommand.substr(0, eCommand.length() - 1);
 
-	//make W1 all caps
-	transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
-	//add W2 to index W1 of environMap
-	environMap[W1] = W2;
+         //make W1 all caps
+         transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
+         //add W2 to index W1 of environMap
+    
+         environMap[W1] = W2;
+    
+         //export to outside file so variables are available to every shell instance
+         ofstream envVars ("./envVars.txt");
+         string out= "";
+         
+         for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++){
+             //print out elements to file
+             out += it->first + " " + it->second + "\n";
+         }
+    
+         envVars << out;
+     }
  }
 
   /**
@@ -257,8 +354,20 @@ string InternalCommands::getHistoryCommand(int n)
 	 
 	//make W1 all caps
 	transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
-     	//remove W1 from map if it exists
+    //remove W1 from map if it exists
 	environMap.erase(W1);
+     
+     //export to outside file so variables are available to every shell instance
+     ofstream envVars ("./envVars.txt");
+     string out= "";
+     for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++)
+     {
+         //print out elements to file
+         out += it->first + " " + it->second + "\n";
+     }
+     
+     envVars << out;
+
  }
 
  /**
@@ -315,6 +424,17 @@ string InternalCommands::replaceEnvironCmds(char * line)
 			}
 		}
 	}
+    
+    //export to outside file so variables are available to every shell instance
+    ofstream envVars ("./envVars.txt");
+    string out= "";
+    for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++)
+    {
+        //print out elements to file
+        out += it->first + " " + it->second + "\n";
+    }
+    
+    envVars << out;
 }
 
 /**

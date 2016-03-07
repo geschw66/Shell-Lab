@@ -32,6 +32,7 @@ void xshLoop(void)
   char *line = NULL;
   int status;
   
+  ic.setEnvVars();
 
   do {
      cout <<"xsh >> ";
@@ -98,6 +99,14 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
          ic->echoCommand(preservedLine);
          ic->addCmdToHistory(preservedLine);
      }
+     else if(args.at(0) == "set"){
+         ic ->setCmd(preservedLine, args);
+         ic->addCmdToHistory(preservedLine);
+     }
+     else if(args.at(0)== "unset"){
+         ic->unsetCmd(preservedLine);
+         ic->addCmdToHistory(preservedLine);
+     }
 	 else if(args.at(0)=="show")
      {
          ic->showCommand(args);
@@ -110,7 +119,7 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
      } 
 	 else if(args.at(0) =="export")
 	 {
-		 ic->exportCmd(preservedLine);
+		 ic->exportCmd(preservedLine, args);
          ic->addCmdToHistory(preservedLine);
 	 }
 	 else if(args.at(0) =="unexport")
