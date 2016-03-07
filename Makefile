@@ -6,10 +6,13 @@ EXECUTABLE=xsh
 all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE):
-	$(CC) -o  $@ $(SOURCES) -lcurses
+	$(CC) -g -o  $@ $(SOURCES) -lcurses
 
 
-clean:
-	rm *.o *.d
+cleanLinux:
+	rm xsh
+
+cleanCgwyn:
+	rm xsh.exe
 
 	
