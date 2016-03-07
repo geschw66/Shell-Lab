@@ -8,7 +8,10 @@
 //
 //- - - - - - - - - - - - - - - - - - - - - -
 #include <locale>
+#include <iostream>
+#include <fstream>
 #include <sstream>
+#include <string>
 #include <iomanip>
 #include <algorithm>
 #include <unistd.h>
@@ -28,7 +31,32 @@ InternalCommands::InternalCommands():longestIndex(0)
  */
 InternalCommands::~InternalCommands(){}
 
-/*
+/**
+ * setEnvVars();
+ * set the environmental variables (exported vars) from external file storage
+*/
+void InternalCommands::setEnvVars(){
+    ifstream envVars("./envVars.txt");
+    if(envVars.is_open()){
+        string line;
+        while(getline(envVars, line)){
+            if(!line.empty()){
+                vector<string> kv;
+                istringstream iss(line);
+                string temp;
+                while(iss >> temp){
+                    kv.push_back(temp);
+                }
+                
+                environMap[kv.at(0)]= kv.at(1);
+                
+                
+            }
+        }
+        //environCmd();
+    }
+}
+/**
 * clearScreen():
 * 	clr: Clear the screen and display a new 
 * 	command line prompt at the top.
@@ -73,12 +101,18 @@ string InternalCommands::showEnvironValue(const string& arg)
 	string key = arg.substr(1, arg.size() - 1);
 	map<string, string>::iterator isThere;
 
-	//If the key exists print the value
+	//If the key exists in environment print the value
 	if ((isThere = environMap.find(key)) != environMap.end()) {
+        cout << "environ:" <<endl;
 		cout << isThere->second << " ";
 
 		//else we simply print the arg as it was.
-	} else {
+	}
+    else if((isThere = localMap.find(key)) != localMap.end()){
+        cout << "local:" <<endl;
+        cout << isThere->second<< " ";
+    }
+    else {
 		cout << arg << " ";
 	}
 	return key;
@@ -151,6 +185,51 @@ void InternalCommands::echoCommand(char * eCmd)
 }
 
 /**
+ * void setCmd()
+ * set the value of local variables stored in localMap
+ */
+void InternalCommands::setCmd(char * cmd, vector<string> args){
+    
+    if(args.size() != 3){
+        cout << "usage: set W1 W2" <<endl;
+    }
+    else {
+    string eCommand = cmd;
+    string delim = " ";
+    
+    //get rid of the export cmd
+    eCommand.erase(eCommand.find("set"), 4);
+    
+    //get W1 and W2
+    int pos = eCommand.find(delim);
+    string W1 = eCommand.substr(0, pos);
+    eCommand.erase(0, pos + delim.length());
+    pos = eCommand.find(delim);
+    string W2 = eCommand.substr(0, eCommand.length() - 1);
+    
+    //make W1 all caps
+    transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
+    //add W2 to index W1 of environMap
+        cout << W1 << W2 <<endl;
+    localMap[W1] = W2;
+    }
+}
+
+void InternalCommands::unsetCmd(char * cmd){
+    string eCommand = cmd;
+    //get rid of the unexport cmd
+    eCommand.erase(eCommand.find("unset"), 6);
+    //Get W1
+    string W1 = eCommand;
+    W1 = W1.substr(0, W1.length()-1);
+    
+    //make W1 all caps
+    transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
+    //remove W1 from map if it exists
+    localMap.erase(W1);
+}
+
+/**
  * historyCommand()
  * 	history: displays up to the last 100 commands.
  */
@@ -217,25 +296,41 @@ string InternalCommands::getHistoryCommand(int n)
  * exportCmd(vector <string> cmd)
  *	export <W1> <W2>: set (store) <W2> in map under index <W1>
  */
- void InternalCommands::exportCmd(char * cmd)
- {
-	string eCommand = cmd;
-	string delim = " ";
+ void InternalCommands::exportCmd(char * cmd, vector<string> args)
+ {   if(args.size() != 3){
+         cout << "usage: Export W1 W2" <<endl;
+     }
+     else {
+         string eCommand = cmd;
+         string delim = " ";
     
-	//get rid of the export cmd
- 	eCommand.erase(eCommand.find("export"), 7);
+         //get rid of the export cmd
+         eCommand.erase(eCommand.find("export"), 7);
 
-	//get W1 and W2
-	int pos = eCommand.find(delim);
-	string W1 = eCommand.substr(0, pos);
-	eCommand.erase(0, pos + delim.length());
-	pos = eCommand.find(delim);
-	string W2 = eCommand.substr(0, eCommand.length() - 1);
+         //get W1 and W2
+         int pos = eCommand.find(delim);
+         string W1 = eCommand.substr(0, pos);
+         eCommand.erase(0, pos + delim.length());
+         pos = eCommand.find(delim);
+         string W2 = eCommand.substr(0, eCommand.length() - 1);
 
-	//make W1 all caps
-	transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
-	//add W2 to index W1 of environMap
-	environMap[W1] = W2;
+         //make W1 all caps
+         transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
+         //add W2 to index W1 of environMap
+    
+         environMap[W1] = W2;
+    
+         //export to outside file so variables are available to every shell instance
+         ofstream envVars ("./envVars.txt");
+         string out= "";
+         
+         for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++){
+             //print out elements to file
+             out += it->first + " " + it->second + "\n";
+         }
+    
+         envVars << out;
+     }
  }
 
   /**
@@ -253,8 +348,20 @@ string InternalCommands::getHistoryCommand(int n)
 	 
 	//make W1 all caps
 	transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
-     	//remove W1 from map if it exists
+    //remove W1 from map if it exists
 	environMap.erase(W1);
+     
+     //export to outside file so variables are available to every shell instance
+     ofstream envVars ("./envVars.txt");
+     string out= "";
+     for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++)
+     {
+         //print out elements to file
+         out += it->first + " " + it->second + "\n";
+     }
+     
+     envVars << out;
+
  }
 
  /**
@@ -311,6 +418,17 @@ string InternalCommands::replaceEnvironCmds(char * line)
 			}
 		}
 	}
+    
+    //export to outside file so variables are available to every shell instance
+    ofstream envVars ("./envVars.txt");
+    string out= "";
+    for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++)
+    {
+        //print out elements to file
+        out += it->first + " " + it->second + "\n";
+    }
+    
+    envVars << out;
 }
 
 /**
