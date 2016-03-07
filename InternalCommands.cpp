@@ -64,6 +64,27 @@ void InternalCommands::pauseCmd(){
 }
 
 /**
+ * Searches through the environMap to find the given key value
+ */
+string InternalCommands::showEnvironValue(const string& arg)
+{
+	//Case of where argument is in the form $ and string of chars ex: $TEST:
+	// will search value by the key TEST and return value.
+	string key = arg.substr(1, arg.size() - 1);
+	map<string, string>::iterator isThere;
+
+	//If the key exists print the value
+	if ((isThere = environMap.find(key)) != environMap.end()) {
+		cout << isThere->second << " ";
+
+		//else we simply print the arg as it was.
+	} else {
+		cout << arg << " ";
+	}
+	return key;
+}
+
+/**
  * showCommand(vector <string> args)
  * 	show W1 W2 ...: display the word(s)
  * 	followed by a newline
@@ -100,18 +121,10 @@ void InternalCommands::showCommand(vector<string> args) {
 					cout << arg << " ";
 				} else
 				{
-					cout << "Should try to do variable substitution here if symbol is defined"<<endl;
-                    string stripped = arg.substr(1, arg.size()- 1);
-                    map<string, string>::iterator isThere;
+                    //Case of where argument is in the form $ and string of chars ex: $TEST:
+					// will search value by the key TEST and return value.
 
-					if((isThere = environMap.find(stripped)) != environMap.end())
-					{
-						cout <<isThere->second<<" ";
-					}else
-					{
-						cout << arg <<" ";
-					}
-
+					showEnvironValue(arg);
 				}
 			}
 		} else {
