@@ -123,7 +123,8 @@ void InternalCommands::showCommand(vector<string> args) {
 					
 					// 1 for success, 0 for failure
 					int isEnvironVariable = showEnvironValue(arg);
-					if !(isEnvironVariable) {
+					if (!isEnvironVariable)
+					{
 						//int isLocalVariable = showLocalValue(arg); //Not implemented yet
 						//if !(isLocalVariable ...
 						cout << arg << " ";
