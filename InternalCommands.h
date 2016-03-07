@@ -17,7 +17,8 @@ class InternalCommands
    InternalCommands();   
    //Destructor
    ~InternalCommands();
-
+   //setEnvVars: set the enviromental variables (exported vars) from external file storage
+   void setEnvVars();
    //clr: Clear the screen and display a new command line prompt at the top.
    void clearScreen();
    //pause: Pause the shell until the Enter button is pressed
@@ -29,6 +30,11 @@ class InternalCommands
   //   new line.
   void  echoCommand(char *  eCmd);
 
+  // set and unset
+  // set and unset the value of local variables, stored in localMap
+  void setCmd(char * cmd, vector<string>args);
+  void unsetCmd(char * cmd);
+    
   //HISTORY related methods:
   // history() prints the history
   // FIFO structure:
@@ -43,7 +49,7 @@ class InternalCommands
 
   //export: export <W1> <W2>:
   //	sets environment variable <W1>.toupper() to value <W2>
-  void exportCmd(char * cmd);
+  void exportCmd(char * cmd, vector<string> args);
   
   //unexport: unexport <W1>:
   //	removes <W1> from set environment variables
@@ -65,6 +71,7 @@ class InternalCommands
   private:
   vector <string> historyList;
   map <string, string> environMap;
+  map <string, string> localMap;
   unsigned int longestIndex;
 
   //private functions:
