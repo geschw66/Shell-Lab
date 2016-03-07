@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <unistd.h>
 #include <term.h>
+#include <dirent.h>
 #include "InternalCommands.h"
 
 using namespace std;
@@ -281,7 +282,26 @@ string InternalCommands::replaceEnvironCmds(char * line)
 	}
 }
 
-
+/**
+ * dir();
+ * list the contents of the current directory
+ */
+void InternalCommands::dirCmd(){
+    DIR *dirp;
+    struct dirent *epd;
+    
+    dirp = opendir("./");
+    if(dirp != NULL){
+        while((epd = readdir(dirp)) != NULL){
+            
+            printf("%s\n",epd->d_name);
+        }
+        closedir(dirp);
+    }
+    else {
+        cout << "Could not get Directory Listing" <<endl;
+    }
+}
 /**
  * chdir(vector<string> args)
  * 	chdir W: change the current directory

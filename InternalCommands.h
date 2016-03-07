@@ -54,6 +54,10 @@ class InternalCommands
   //replace enviroment variables with their string counterparts
   string replaceEnvironCmds(char * line);
   
+  //dir
+  // list the contents of the current directory
+  void dirCmd();
+    
   //chdir: change current directory to W
   int chdirCommand(vector<string> args);
 
