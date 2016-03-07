@@ -294,7 +294,9 @@ void InternalCommands::dirCmd(){
     if(dirp != NULL){
         while((epd = readdir(dirp)) != NULL){
             
-            printf("%s\n",epd->d_name);
+        	//why printf and not cout?
+           // printf("%s\n",epd->d_name);
+        	cout << epd->d_name <<endl;
         }
         closedir(dirp);
     }
