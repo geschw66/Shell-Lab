@@ -94,31 +94,19 @@ void InternalCommands::pauseCmd(){
 /**
  * Searches through the environMap to find the given key value
  */
-string InternalCommands::showEnvironValue(const string& arg)
+int InternalCommands::showEnvironValue(const string& arg)
 {
 	//Case of where argument is in the form $ and string of chars ex: $TEST:
 	// will search value by the key TEST and return value.
-	string key = arg.substr(1, arg.size() - 1);
-	map<string, string>::iterator isThere;
+	string key = arg.substr(1);
 
-	//If the key exists in environment print the value
-	if ((isThere = environMap.find(key)) != environMap.end()) {
-        cout << "environ:" <<endl;
-		cout << isThere->second << " ";
+	int status = (environMap.find(key) != environMap.end());
 
-    //If the key is set locally print the value
-        
-    //This could be its own method or command if we want to seperate it. Or, use a flag for showing environ vs local variables. ex: show -e : show environ, show -l : show local, show : show all
+	//If the key exists print the value
+	if (status) {
+		cout << environMap.at(key) << " ";
 	}
-    else if((isThere = localMap.find(key)) != localMap.end()){
-        cout << "local:" <<endl;
-        cout << isThere->second<< " ";
-    }
-    //else we simply print the arg as it was.
-    else {
-		cout << arg << " ";
-	}
-	return key;
+	return status;
 }
 
 /**
@@ -182,7 +170,7 @@ void InternalCommands::echoCommand(char * eCmd)
    string eCommand = eCmd;
    int firstElement = eCommand.find("echo");
    //Remove the subsring "echoc"
-   eCommand.erase(firstElement, 4);
+   eCommand.erase(firstElement, 5);
    cout <<eCommand;
 
 }
