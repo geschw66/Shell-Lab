@@ -20,7 +20,8 @@ class InternalCommands
 
    //clr: Clear the screen and display a new command line prompt at the top.
    void clearScreen();
-
+   //pause: Pause the shell until the Enter button is pressed
+   void pauseCmd();
    //show: show W1 W2 ... : display the word(s) followed by a newline
    void showCommand(vector<string> args);
 
