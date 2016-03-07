@@ -100,18 +100,12 @@ void InternalCommands::showCommand(vector<string> args) {
 					cout << arg << " ";
 				} else
 				{
-					cout << "Should try to do variable substitution here if symbol is defined"<<endl;
-                    string stripped = arg.substr(1, arg.size()- 1);
-                    map<string, string>::iterator isThere;
-
-					if((isThere = environMap.find(stripped)) != environMap.end())
-					{
-						cout <<isThere->second<<" ";
-					}else
-					{
-						cout << arg <<" ";
+					//cout << "Should try to do variable substitution here if symbol is defined"<<endl;
+                    			string stripped = arg.substr(1);
+					if(environMap.find(stripped) != environMap.end()) {
+						arg = environMap.at(stripped);
 					}
-
+					cout << arg << " ";
 				}
 			}
 		} else {
