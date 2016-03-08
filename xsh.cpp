@@ -1,16 +1,18 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
+#include <signal.h>
 #include <stdio.h>
 #include <string.h>
 #include "BasicTasks.h"
 #include "InternalCommands.h"
+#include "ExternalCommands.h"
 #include <ctype.h>
 #include <unistd.h>
 
 using namespace std;
 void xshLoop();
-int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic);
+int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalCommands* ec);
 bool ValidateCommandLine(int argc, char *argv[]);
 
 int main(int argc, char * argv[])
@@ -22,6 +24,39 @@ int main(int argc, char * argv[])
 
 return 0;
 }
+
+/**
+ * sigHandler(int signum)
+ * handles all appropriate signals and ignores the rest
+ */
+void sigHandler(int signum){
+    
+    switch(signum){
+        case SIGINT:
+            //if foreground process
+                //kill(pid_foreground, SIGINT)
+            break;
+        case SIGQUIT:
+            //if foreground process
+                //kill(pid_foreground, SIGQUIT)
+            break;
+        case SIGCONT:
+            //if foreground process
+                //kill(pid_foreground, SIGCONT)
+            break;
+        case SIGTSTP:
+            //if foreground process
+                //kill(pid_foreground, SIGSTP)
+            break;
+        default:
+            //ignore
+            break;
+    }
+}
+    
+
+
+
 /*
  * Control Loop for the shell xsh
  */
@@ -29,9 +64,23 @@ void xshLoop(void)
 {
   BasicTasks bt;
   InternalCommands ic;
+  ExternalCommands ec;
   char *line = NULL;
   int status;
+
+  //catch signals
+  signal(SIGINT, sigHandler);
+  signal(SIGQUIT, sigHandler);
+  signal(SIGCONT, sigHandler);
+  signal(SIGTSTP, sigHandler);
+  signal(SIGABRT, sigHandler);
+  signal(SIGALRM, sigHandler);
+  signal(SIGHUP, sigHandler);
+  signal(SIGTERM, sigHandler);
+  signal(SIGUSR1, sigHandler);
+  signal(SIGUSR2, sigHandler);
   
+  //ic.setEnvVars();
 
   do {
      cout <<"xsh >> ";
@@ -44,7 +93,7 @@ void xshLoop(void)
       return;
      }
 
-	 status = HandleInput(line, &bt, &ic);
+	 status = HandleInput(line, &bt, &ic, &ec);
 	 //if -1, exit command was sent
 	 if(status == -1)
 	 {
@@ -64,7 +113,7 @@ void xshLoop(void)
  *   this is created so that it can be recalled when the repeat command is issued
  */
 
-int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
+int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalCommands* ec)
 {
 	  //Variables for handling input
       vector<string> args;
@@ -98,6 +147,14 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
          ic->echoCommand(preservedLine);
          ic->addCmdToHistory(preservedLine);
      }
+     else if(args.at(0) == "set"){
+         ic ->setCmd(preservedLine, args);
+         ic->addCmdToHistory(preservedLine);
+     }
+     else if(args.at(0)== "unset"){
+         ic->unsetCmd(preservedLine);
+         ic->addCmdToHistory(preservedLine);
+     }
 	 else if(args.at(0)=="show")
      {
          ic->showCommand(args);
@@ -110,12 +167,12 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
      } 
 	 else if(args.at(0) =="export")
 	 {
-		 ic->exportCmd(preservedLine);
+		 ic->exportCmd(preservedLine, args);
          ic->addCmdToHistory(preservedLine);
 	 }
 	 else if(args.at(0) =="unexport")
 	 {
-		 ic->unexportCmd(preservedLine);
+		 ic->unexportCmd(args);
          ic->addCmdToHistory(preservedLine);
 	 }
 	 else if(args.at(0) =="environ")
@@ -123,6 +180,22 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
 		 ic->environCmd();
          ic->addCmdToHistory(preservedLine);
 	 }
+     else if(args.at(0) == "dir"){
+         ic->dirCmd();
+         ic->addCmdToHistory(preservedLine);
+     }
+     else if(args.at(0) == "chdir"){
+         ic-> chdirCommand(args);
+         ic ->addCmdToHistory(preservedLine);
+     }
+     else if (args.at(0) == "pause"){
+         ic->pauseCmd();
+         ic ->addCmdToHistory(preservedLine);
+     }
+     else if(args.at(0) == "kill"){
+         ic->killCmd(args);
+         ic->addCmdToHistory(preservedLine);
+     }
 	 else if(args.at(0) =="repeat")
 	 {
 		 int historyItem = -1;
@@ -143,7 +216,7 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
 			// }
 		 }
 		 //get history command, recall this function
-		 status = HandleInput((char *)ic->getHistoryCommand(historyItem).c_str(), bt, ic);
+		 status = HandleInput((char *)ic->getHistoryCommand(historyItem).c_str(), bt, ic, ec);
          args.clear();
 
 		 //do not save repeat command to history list, this mimicks the bang command in linux
@@ -161,10 +234,15 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
           for(unsigned int i= 0; i < args.size(); i++)
           cout <<"["<<i<<"]: "<<args.at(i)<<endl;
 #endif
+         
+         //Call External
+         int fg = (args.at(args.size()-1).at(0)!='&');
+         ec->callExternal(fg, args);
+         
      }
 
 
-     status = bt->executeLine(args,*ic);
+     status = 1;//bt->executeLine(args,*ic);
      args.clear();
 
 	 //handle memory
@@ -215,3 +293,5 @@ bool ValidateCommandLine(int argc, char *argv[])
  
  return status;
 }
+
+
