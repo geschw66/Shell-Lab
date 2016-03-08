@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
+#include <signal.h>
 #include <stdio.h>
 #include <string.h>
 #include "BasicTasks.h"
@@ -22,6 +23,39 @@ int main(int argc, char * argv[])
 
 return 0;
 }
+
+/**
+ * sigHandler(int signum)
+ * handles all appropriate signals and ignores the rest
+ */
+void sigHandler(int signum){
+    
+    switch(signum){
+        case SIGINT:
+            //if foreground process
+                //kill(pid_foreground, SIGINT)
+            break;
+        case SIGQUIT:
+            //if foreground process
+                //kill(pid_foreground, SIGQUIT)
+            break;
+        case SIGCONT:
+            //if foreground process
+                //kill(pid_foreground, SIGCONT)
+            break;
+        case SIGTSTP:
+            //if foreground process
+                //kill(pid_foreground, SIGSTP)
+            break;
+        default:
+            //ignore
+            break;
+    }
+}
+    
+
+
+
 /*
  * Control Loop for the shell xsh
  */
@@ -31,6 +65,18 @@ void xshLoop(void)
   InternalCommands ic;
   char *line = NULL;
   int status;
+
+  //catch signals
+  signal(SIGINT, sigHandler);
+  signal(SIGQUIT, sigHandler);
+  signal(SIGCONT, sigHandler);
+  signal(SIGTSTP, sigHandler);
+  signal(SIGABRT, sigHandler);
+  signal(SIGALRM, sigHandler);
+  signal(SIGHUP, sigHandler);
+  signal(SIGTERM, sigHandler);
+  signal(SIGUSR1, sigHandler);
+  signal(SIGUSR2, sigHandler);
   
   ic.setEnvVars();
 
@@ -144,6 +190,10 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
          ic->pauseCmd();
          ic ->addCmdToHistory(preservedLine);
      }
+     else if(args.at(0) == "kill"){
+         ic->killCmd(args);
+         ic->addCmdToHistory(preservedLine);
+     }
 	 else if(args.at(0) =="repeat")
 	 {
 		 int historyItem = -1;
@@ -236,3 +286,5 @@ bool ValidateCommandLine(int argc, char *argv[])
  
  return status;
 }
+
+

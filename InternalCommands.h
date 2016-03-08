@@ -68,6 +68,9 @@ class InternalCommands
   //chdir: change current directory to W
   int chdirCommand(vector<string> args);
 
+  //kill: kill [-n] pid
+  void killCmd(vector<string>args);
+    
   private:
   vector <string> historyList;
   map <string, string> environMap;
@@ -76,8 +79,9 @@ class InternalCommands
 
   //private functions:
   string findMapValue(const string key);
-	int showEnvironValue(const string& arg);
-	int showLocalValue(const string& arg);
+  int showEnvironValue(const string& arg);
+  int showLocalValue(const string& arg);
+  int is_number(const string& s); 
 };
 
 #endif
