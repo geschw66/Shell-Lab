@@ -20,7 +20,8 @@ void ExternalCommands::callExternal(int fg, vector<string> args) {
     
 	//handle arguments
 	//check for I/O redirection ( < or > )
-    int inPipe, outPipe;
+    int inPipe = 0;
+    int outPipe = 0;
     for(int i = 1; i < args.size(); ++i){
         if(!args.at(i).compare("<")){
             inPipe = i;
@@ -32,8 +33,9 @@ void ExternalCommands::callExternal(int fg, vector<string> args) {
     }
     char * filename = &(args.at(0))[0u];
     
-    ///find input/output files if any
+    //find input/output files if any
     char * infile, *outfile;
+
     if(inPipe != 0){
         if(inPipe+1 != args.size()){
             infile = &(args.at(inPipe+1))[0u];
@@ -44,7 +46,7 @@ void ExternalCommands::callExternal(int fg, vector<string> args) {
             outfile = &(args.at(outPipe+1))[0u];
         }
     }
-    
+
     //create argv
     int n;
     if ((n = min(outPipe, inPipe)) == 0){
@@ -55,10 +57,6 @@ void ExternalCommands::callExternal(int fg, vector<string> args) {
         argv[i] = &(args.at(i))[0u];
     }
 
-    for(int i = 0; i< n; ++i){
-       // cout << argv[i] << endl;
-    }
-        
 	pid = fork();
 	if (pid == -1) {
 		//forking error
@@ -72,15 +70,15 @@ void ExternalCommands::callExternal(int fg, vector<string> args) {
 //        }
         
 	}
-//	else {
-//		//parent process
-//		//foreground/background
-//		if (fg) {
-//	//		fg_pid = pid;
-//			waitpid(pid, NULL, WUNTRACED);
-//		}
-//		else {
-//	//		bg_pid = pid;
-//		}
-//	}
+	else {
+		//parent process
+		//foreground/background
+		if (fg) {
+	//		fg_pid = pid;
+			waitpid(pid, NULL, WUNTRACED);
+		}
+		else {
+	//		bg_pid = pid;
+		}
+	}
 }
