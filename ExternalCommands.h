@@ -10,7 +10,6 @@ public:
 	ExternalCommands();
 	~ExternalCommands();
 	void callExternal(int fg, char *cmd);
-	void createProcess(char *cmd);
 };
 
 #endif
