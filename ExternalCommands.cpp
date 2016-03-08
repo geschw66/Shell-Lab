@@ -68,6 +68,7 @@ void ExternalCommands::callExternal(int fg, vector<string> args) {
 //        if((execve(filename,argv, environ)) == -1){
 //            return;
 //        }
+        exit(0);
         
 	}
 	else {
