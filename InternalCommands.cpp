@@ -17,6 +17,9 @@
 #include <unistd.h>
 #include <term.h>
 #include <dirent.h>
+#include <stdlib.h>
+
+#include <signal.h>
 #include "InternalCommands.h"
 
 using namespace std;
@@ -475,6 +478,43 @@ int InternalCommands::chdirCommand(vector<string> args)
 	}
 }
 
+
+int InternalCommands::is_number(const string& s){
+    string::const_iterator it = s.begin();
+    while(it != s.end() && isdigit(*it)) ++it;
+    return (it == s.end());
+}
+
+/**
+ * kill(vector<string>args)
+ * send signal W1 to process W2
+ */
+void InternalCommands::killCmd(vector<string>args){
+    
+    if(args.size() > 3 || args.size() == 1){
+        cout << "usage: kill [-n] pid" <<endl;
+    }
+    else{
+        string s = args.at(1);
+        if(args.size() == 2){
+            if(is_number(s)){
+                kill(stoi(s),SIGTERM);
+            }
+        }
+        else{
+            string p = args.at(2);
+            if(is_number(p)){
+                if(s.at(0) =='-' && s.length() >1 && is_number(s.substr(1))){
+                    kill(stoi(s), stoi(p));
+                }
+                else{
+                    cout << "usage: kill [-n] pid" <<endl;
+                }
+            }
+        }
+    }
+}
+
 /*
  * wrapper for map.find(key)->value;
  */
@@ -485,3 +525,5 @@ string InternalCommands::findMapValue(string key)
 
 	return key;
 }
+
+    
