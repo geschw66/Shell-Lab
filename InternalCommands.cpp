@@ -24,6 +24,7 @@
 
 using namespace std;
 
+extern char ** environ;
 /**
  * Constructor.
  */
@@ -37,28 +38,29 @@ InternalCommands::~InternalCommands(){}
 /**
  * setEnvVars();
  * set the environmental variables (exported vars) from external file storage
-*/
-void InternalCommands::setEnvVars(){
-    ifstream envVars("./envVars.txt");
-    if(envVars.is_open()){
-        string line;
-        while(getline(envVars, line)){
-            if(!line.empty()){
-                vector<string> kv;
-                istringstream iss(line);
-                string temp;
-                while(iss >> temp){
-                    kv.push_back(temp);
-                }
-                
-                environMap[kv.at(0)]= kv.at(1);
-                
-                
-            }
-        }
-        //environCmd();
-    }
-}
+//*/
+//void InternalCommands::setEnvVars(){
+//    ifstream envVars("./envVars.txt");
+//    if(envVars.is_open()){
+//        string line;
+//        while(getline(envVars, line)){
+//            if(!line.empty()){
+//                vector<string> kv;
+//                istringstream iss(line);
+//                string temp;
+//                while(iss >> temp){
+//                    kv.push_back(temp);
+//                }
+//                
+//                environMap[kv.at(0)]= kv.at(1);
+//                
+//                
+//            }
+//        }
+//        //environCmd();
+//    }
+//}
+
 /**
 * clearScreen():
 * 	clr: Clear the screen and display a new 
@@ -99,17 +101,28 @@ void InternalCommands::pauseCmd(){
  */
 int InternalCommands::showEnvironValue(const string& arg)
 {
-	//Case of where argument is in the form $ and string of chars ex: $TEST:
-	// will search value by the key TEST and return value.
-	string key = arg.substr(1);
-
-	int status = (environMap.find(key) != environMap.end());
-
-	//If the key exists print the value
-	if (status) {
-		cout << environMap.at(key) << " ";
-	}
-	return status;
+//	//Case of where argument is in the form $ and string of chars ex: $TEST:
+//	// will search value by the key TEST and return value.
+//	string key = arg.substr(1);
+//
+//	int status = (environMap.find(key) != environMap.end());
+//
+//	//If the key exists print the value
+//	if (status) {
+//		cout << environMap.at(key) << " ";
+//	}
+//	return status;
+    
+    char* key = &(arg.substr(1))[0u];
+    char* W1;
+    int status = ((W1 = getenv(key)) != NULL);
+    
+    if(status){
+        cout << W1 << " ";
+    }
+    
+    return status;
+    
 }
 
 /**
@@ -164,8 +177,10 @@ void InternalCommands::showCommand(vector<string> args) {
 				{
                     //Case of where argument is in the form $ and string of chars ex: $TEST:
 					// will search value by the key TEST and return value.
-					if (!showEnvironValue(arg)) {
-						if (!showLocalValue(arg)) {
+                    
+                    //prefer local variable to environmental variable
+					if (!showLocalValue(arg)) {
+						if (!showEnvironValue(arg)) {
 							cout << arg << " ";
 						} 
 					}
@@ -306,40 +321,52 @@ string InternalCommands::getHistoryCommand(int n)
  * exportCmd(vector <string> cmd)
  *	export <W1> <W2>: set (store) <W2> in map under index <W1>
  */
- void InternalCommands::exportCmd(char * cmd, vector<string> args)
- {   if(args.size() != 3){
-         cout << "usage: Export W1 W2" <<endl;
+ void InternalCommands::exportCmd(char * cmd, vector<string> args){
+//     if(args.size() != 3){
+//         cout << "usage: Export W1 W2" <<endl;
+//     }
+//     else {
+//         string eCommand = cmd;
+//         string delim = " ";
+//    
+//         //get rid of the export cmd
+//         eCommand.erase(eCommand.find("export"), 7);
+//
+//         //get W1 and W2
+//         int pos = eCommand.find(delim);
+//         string W1 = eCommand.substr(0, pos);
+//         eCommand.erase(0, pos + delim.length());
+//         pos = eCommand.find(delim);
+//         string W2 = eCommand.substr(0, eCommand.length() - 1);
+//
+//         //make W1 all caps
+//         transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
+//         //add W2 to index W1 of environMap
+//    
+//         environMap[W1] = W2;
+//    
+//         //export to outside file so variables are available to every shell instance
+//         ofstream envVars ("./envVars.txt");
+//         string out= "";
+//         
+//         for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++){
+//             //print out elements to file
+//             out += it->first + " " + it->second + "\n";
+//         }
+//    
+//         envVars << out;
+//     }
+     
+     if(args.size() != 3) {
+         cout << "usage: export W1 W2" <<endl;
      }
      else {
-         string eCommand = cmd;
-         string delim = " ";
-    
-         //get rid of the export cmd
-         eCommand.erase(eCommand.find("export"), 7);
-
-         //get W1 and W2
-         int pos = eCommand.find(delim);
-         string W1 = eCommand.substr(0, pos);
-         eCommand.erase(0, pos + delim.length());
-         pos = eCommand.find(delim);
-         string W2 = eCommand.substr(0, eCommand.length() - 1);
-
-         //make W1 all caps
-         transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
-         //add W2 to index W1 of environMap
-    
-         environMap[W1] = W2;
-    
-         //export to outside file so variables are available to every shell instance
-         ofstream envVars ("./envVars.txt");
-         string out= "";
+         char* W1 = &(args.at(1))[0u];
+         char* W2 = &(args.at(2))[0u];
          
-         for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++){
-             //print out elements to file
-             out += it->first + " " + it->second + "\n";
+         if(setenv(W1, W2, 1)==-1){
+             cout << "Could not set environmental variable" <<endl;
          }
-    
-         envVars << out;
      }
  }
 
@@ -347,31 +374,39 @@ string InternalCommands::getHistoryCommand(int n)
  * unexportCmd(vector <string> cmd)
  *	export <W1>: unset (remove) <W1> from map
  */
- void InternalCommands::unexportCmd(char * cmd)
+ void InternalCommands::unexportCmd(vector<string>args)
  {
-	string eCommand = cmd;
-	//get rid of the unexport cmd
-  	eCommand.erase(eCommand.find("unexport"), 9);
-	//Get W1
-	string W1 = eCommand;
-	W1 = W1.substr(0, W1.length()-1);
-	 
-	//make W1 all caps
-	transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
-    //remove W1 from map if it exists
-	environMap.erase(W1);
-     
-     //export to outside file so variables are available to every shell instance
-     ofstream envVars ("./envVars.txt");
-     string out= "";
-     for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++)
-     {
-         //print out elements to file
-         out += it->first + " " + it->second + "\n";
+//	string eCommand = cmd;
+//	//get rid of the unexport cmd
+//  	eCommand.erase(eCommand.find("unexport"), 9);
+//	//Get W1
+//	string W1 = eCommand;
+//	W1 = W1.substr(0, W1.length()-1);
+//	 
+//	//make W1 all caps
+//	transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
+//    //remove W1 from map if it exists
+//	environMap.erase(W1);
+//     
+//     //export to outside file so variables are available to every shell instance
+//     ofstream envVars ("./envVars.txt");
+//     string out= "";
+//     for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++)
+//     {
+//         //print out elements to file
+//         out += it->first + " " + it->second + "\n";
+//     }
+//     
+//     envVars << out;
+     if(args.size() != 2){
+         cout << "usage: unexport W1" <<endl;
      }
-     
-     envVars << out;
-
+     else {
+         char*W1 = &(args.at(1))[0u];
+         if(unsetenv(W1)!= -1){
+             cout << "Error Removing from Environment" <<endl;
+         }
+     }
  }
 
  /**
@@ -380,11 +415,16 @@ string InternalCommands::getHistoryCommand(int n)
  */
  void InternalCommands::environCmd()
  {
-	 //iterate through the map
-	 for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++)
-     {
-		 //print out elements "FIRST=second"
-		 cout << it->first << "=" << it->second << endl;
+//	 //iterate through the map
+//	 for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++)
+//     {
+//		 //print out elements "FIRST=second"
+//		 cout << it->first << "=" << it->second << endl;
+//     }
+     char ** env;
+     for(env= environ; *env != 0; ++env){
+         char* thisEnv = *env;
+         cout<< thisEnv << endl;
      }
  }
 
@@ -392,54 +432,54 @@ string InternalCommands::getHistoryCommand(int n)
  * replaceEnvironCmds(string)
  * replace enviroment variables with their string counterparts
  */
-string InternalCommands::replaceEnvironCmds(char * line)
-{
-	string eCommand = line;
-	const char* delims = " \t\r\n\a";
-	char* token;
-	vector<string> tokens;
+//string InternalCommands::replaceEnvironCmds(char * line)
+//{
+//	string eCommand = line;
+//	const char* delims = " \t\r\n\a";
+//	char* token;
+//	vector<string> tokens;
+//
+//    	//Use strtok to grab the next token from the line.
+//    	token = strtok(line, delims);
+//    	while (token != NULL)
+//    	{
+//        	tokens.push_back(token);
+//        	token = strtok(NULL, delims);
+//    	}
+//
+//	//scan through tokens, replace any environment variables with its value
+//	for(vector<string>::iterator it = tokens.begin(); it != tokens.end() ; it++)
+//	{
+//		string temp = *it;
+//		//if the first value is the character '$' search to see if the rest is there
+//		if(temp.at(0) == '$')
+//		{
+//			//strip off '$'
+//			cout << "Stripping '$' from " << temp;
+//			temp.erase(temp.begin());
+//			cout << "= " << temp << endl;
+//			//make all caps
+//			transform(temp.begin(), temp.end(), temp.begin(), ::toupper);
+//			//if it exists in the map, replace it
+//			if(environMap.count(temp) > 0)
+//			{
+//				it->replace(it->begin(), it->end(), environMap[temp]);
+//				cout << "temp: " << temp << " & environMap[temp]: " << environMap[temp] << endl;
+//			}
+//		}
+//	}
 
-    	//Use strtok to grab the next token from the line.
-    	token = strtok(line, delims);
-    	while (token != NULL)
-    	{
-        	tokens.push_back(token);
-        	token = strtok(NULL, delims);
-    	}
-
-	//scan through tokens, replace any environment variables with its value
-	for(vector<string>::iterator it = tokens.begin(); it != tokens.end() ; it++)
-	{
-		string temp = *it;
-		//if the first value is the character '$' search to see if the rest is there
-		if(temp.at(0) == '$')
-		{
-			//strip off '$'
-			cout << "Stripping '$' from " << temp;
-			temp.erase(temp.begin());
-			cout << "= " << temp << endl;
-			//make all caps
-			transform(temp.begin(), temp.end(), temp.begin(), ::toupper);
-			//if it exists in the map, replace it
-			if(environMap.count(temp) > 0)
-			{
-				it->replace(it->begin(), it->end(), environMap[temp]);
-				cout << "temp: " << temp << " & environMap[temp]: " << environMap[temp] << endl;
-			}
-		}
-	}
-    
-    //export to outside file so variables are available to every shell instance
-    ofstream envVars ("./envVars.txt");
-    string out= "";
-    for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++)
-    {
-        //print out elements to file
-        out += it->first + " " + it->second + "\n";
-    }
-    
-    envVars << out;
-}
+//    //export to outside file so variables are available to every shell instance
+//    ofstream envVars ("./envVars.txt");
+//    string out= "";
+//    for(map<string, string>::const_iterator it = environMap.begin(); it != environMap.end(); it++)
+//    {
+//        //print out elements to file
+//        out += it->first + " " + it->second + "\n";
+//    }
+//    
+//    envVars << out;
+//}
 
 /**
  * dir();

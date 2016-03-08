@@ -10,14 +10,13 @@ $(EXECUTABLE):
 	$(CC) -g -o  $@ $(SOURCES) -lcurses
 
 clean:
-ifeq "$(OS)" "Windows"
-	if [ -a xsh.exe ] ; \
-	then \
-		rm xsh.exe; \
-	fi
-else ifeq "$(OS)" "Linux"
-	if [ -a xsh ] ; \
-	then \
-		rm xsh; \
-	fi
-endif
+	rm -f xsh 
+	rm -f xsh.exe
+#ifeq "$(OS)" "Windows"
+#	if [ -a xsh.exe ] ; \
+#	then \
+#		rm xsh.exe; \
+#	fi
+#else ifeq "$(OS)" "Linux"
+#	rm -f xsh 
+#endif

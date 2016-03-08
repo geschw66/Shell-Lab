@@ -78,7 +78,7 @@ void xshLoop(void)
   signal(SIGUSR1, sigHandler);
   signal(SIGUSR2, sigHandler);
   
-  ic.setEnvVars();
+  //ic.setEnvVars();
 
   do {
      cout <<"xsh >> ";
@@ -170,7 +170,7 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
 	 }
 	 else if(args.at(0) =="unexport")
 	 {
-		 ic->unexportCmd(preservedLine);
+		 ic->unexportCmd(args);
          ic->addCmdToHistory(preservedLine);
 	 }
 	 else if(args.at(0) =="environ")
