@@ -18,7 +18,7 @@ class InternalCommands
    //Destructor
    ~InternalCommands();
    //setEnvVars: set the enviromental variables (exported vars) from external file storage
-   void setEnvVars();
+   //void setEnvVars();
    //clr: Clear the screen and display a new command line prompt at the top.
    void clearScreen();
    //pause: Pause the shell until the Enter button is pressed
@@ -53,13 +53,13 @@ class InternalCommands
   
   //unexport: unexport <W1>:
   //	removes <W1> from set environment variables
-  void unexportCmd(char * cmd);
+  void unexportCmd(vector<string> args);
   
   //environ: print out all set environment variables
   void environCmd();
   
   //replace enviroment variables with their string counterparts
-  string replaceEnvironCmds(char * line);
+  //string replaceEnvironCmds(char * line);
   
   //dir
   // list the contents of the current directory
