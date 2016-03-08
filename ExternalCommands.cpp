@@ -9,7 +9,7 @@
 
 using namespace std;
 
-//extern char ** environ;
+extern char ** environ;
 
 ExternalCommands::ExternalCommands() {}
 
@@ -52,10 +52,11 @@ void ExternalCommands::callExternal(int fg, vector<string> args) {
     if ((n = min(outPipe, inPipe)) == 0){
         n= args.size();
     }
-    char * argv[n];
+    char * argv[n + 1];
     for(int i = 0; i<n; ++i){
         argv[i] = &(args.at(i))[0u];
     }
+	argv[n] = NULL;
 
 	pid = fork();
 	if (pid == -1) {
@@ -65,10 +66,11 @@ void ExternalCommands::callExternal(int fg, vector<string> args) {
 	}
 	if (pid == 0) {
 		//child process, piping
-//        if((execve(filename,argv, environ)) == -1){
-//            return;
-//        }
-        exit(0);
+	char *pArgs[] = {"ls", "-l", NULL};
+	if(execvp(filename,argv) == -1){
+		cout << errno << endl;
+	}
+	exit(0);
         
 	}
 	else {
