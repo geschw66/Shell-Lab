@@ -7,7 +7,7 @@ OS:=$(shell uname)
 all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE):
-	$(CC) -g -o  $@ $(SOURCES) -lcurses
+	$(CC)  -std=c++11 -g -o  $@ $(SOURCES) -lcurses
 
 clean:
 ifeq "$(OS)" "Windows"
