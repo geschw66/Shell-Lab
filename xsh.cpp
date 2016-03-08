@@ -6,12 +6,13 @@
 #include <string.h>
 #include "BasicTasks.h"
 #include "InternalCommands.h"
+#include "ExternalCommands.h"
 #include <ctype.h>
 #include <unistd.h>
 
 using namespace std;
 void xshLoop();
-int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic);
+int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalCommands* ec);
 bool ValidateCommandLine(int argc, char *argv[]);
 
 int main(int argc, char * argv[])
@@ -63,6 +64,7 @@ void xshLoop(void)
 {
   BasicTasks bt;
   InternalCommands ic;
+  ExternalCommands ec;
   char *line = NULL;
   int status;
 
@@ -91,7 +93,7 @@ void xshLoop(void)
       return;
      }
 
-	 status = HandleInput(line, &bt, &ic);
+	 status = HandleInput(line, &bt, &ic, &ec);
 	 //if -1, exit command was sent
 	 if(status == -1)
 	 {
@@ -111,7 +113,7 @@ void xshLoop(void)
  *   this is created so that it can be recalled when the repeat command is issued
  */
 
-int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
+int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalCommands* ec)
 {
 	  //Variables for handling input
       vector<string> args;
@@ -214,7 +216,7 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
 			// }
 		 }
 		 //get history command, recall this function
-		 status = HandleInput((char *)ic->getHistoryCommand(historyItem).c_str(), bt, ic);
+		 status = HandleInput((char *)ic->getHistoryCommand(historyItem).c_str(), bt, ic, ec);
          args.clear();
 
 		 //do not save repeat command to history list, this mimicks the bang command in linux
@@ -232,10 +234,15 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic)
           for(unsigned int i= 0; i < args.size(); i++)
           cout <<"["<<i<<"]: "<<args.at(i)<<endl;
 #endif
+         
+         //Call External
+         int fg = (args.at(args.size()-1).at(0)!='&');
+         ec->callExternal(fg, args);
+         
      }
 
 
-     status = bt->executeLine(args,*ic);
+     status = 1;//bt->executeLine(args,*ic);
      args.clear();
 
 	 //handle memory
