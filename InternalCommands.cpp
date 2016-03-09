@@ -549,7 +549,7 @@ void InternalCommands::killCmd(vector<string>args){
             string p = args.at(2);
             if(is_number(p)){
                 if(s.at(0) =='-' && s.length() >1 && is_number(s.substr(1))){
-                    if(kill(stoi(p), stoi(s))==-1){
+                    if(kill(stoi(p), stoi(s.substr(1)))==-1){
                         cout << errno << endl;
                     }
                 }
