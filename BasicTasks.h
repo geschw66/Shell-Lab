@@ -17,7 +17,7 @@ class BasicTasks
      const char * readLine(void);
      int parseLine(char * line,vector<string>& tokens);
      int  executeLine(vector<string>  args,InternalCommands &intCmd);
-
+     int is_number(const string& s);
 
    private:
 

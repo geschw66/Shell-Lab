@@ -62,4 +62,8 @@ int BasicTasks::executeLine(vector<string>  args,InternalCommands &intCmd)
    return 1;
 }
 
-
+int BasicTasks::is_number(const string& s){
+    string::const_iterator it = s.begin();
+    while(it != s.end() && isdigit(*it)) ++it;
+    return (it == s.end());
+}

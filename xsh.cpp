@@ -15,8 +15,14 @@ void xshLoop();
 int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalCommands* ec);
 bool ValidateCommandLine(int argc, char *argv[]);
 
+int pgid; //process group id
+
 int main(int argc, char * argv[])
 {
+    //set session ID, this allows for killing all child processes at the end, more easily
+    setsid();
+    //get process group id
+    pgid = getpgid(0);
 
     ValidateCommandLine(argc, argv);
     //command loop:
@@ -135,7 +141,27 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalComman
      }
      else if(args.at(0) =="exit")
      {
-        return -1;
+        if(args.size() > 1 && bt->is_number(args.at(1)))
+	{
+		//kill all child processes
+		kill(pgid, 15);
+		//report back whatever is given
+		exit(stoi(args.at(1)));
+	}
+	else if(args.size() > 1)
+	{
+		cout << "Usage: exit [n]" << endl;
+		//else report back an error
+		exit(-1);
+	}
+	else
+	{
+		//else exit
+		//kill all child processes
+		kill(pgid, 15);
+		//exit normally
+		exit(0);
+	}
      }
      else if(args.at(0)=="clr")
      {
