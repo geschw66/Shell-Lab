@@ -21,6 +21,7 @@
 
 #include <signal.h>
 #include "InternalCommands.h"
+#include "ExternalCommands.h"
 
 using namespace std;
 
@@ -540,16 +541,24 @@ void InternalCommands::killCmd(vector<string>args){
             if(is_number(s)){
                 kill(stoi(s),SIGTERM);
             }
+            else{
+                cout << "usage: kill [-n] pid" <<endl;
+            }
         }
         else{
             string p = args.at(2);
             if(is_number(p)){
                 if(s.at(0) =='-' && s.length() >1 && is_number(s.substr(1))){
-                    kill(stoi(s), stoi(p));
+                    if(kill(stoi(p), stoi(s.substr(1)))==-1){
+                        cout << errno << endl;
+                    }
                 }
                 else{
                     cout << "usage: kill [-n] pid" <<endl;
                 }
+            }
+            else{
+                cout << "usage: kill [-n] pid" <<endl;
             }
         }
     }
