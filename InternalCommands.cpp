@@ -235,7 +235,7 @@ void InternalCommands::setCmd(char * cmd, vector<string> args){
     string W2 = eCommand.substr(0, eCommand.length() - 1);
     
     //make W1 all caps
-    transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
+    //transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
     //add W2 to index W1 of localMap
     localMap[W1] = W2;
     }
@@ -250,7 +250,7 @@ void InternalCommands::unsetCmd(char * cmd){
     W1 = W1.substr(0, W1.length()-1);
     
     //make W1 all caps
-    transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
+    //transform(W1.begin(), W1.end(), W1.begin(), ::toupper);
     //remove W1 from localMap if it exists
     localMap.erase(W1);
 }
