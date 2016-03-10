@@ -68,7 +68,7 @@ void ExternalCommands::callExternal(int fg, vector<string> args) {
 		//child process, piping
 	char *pArgs[] = {"ls", "-l", NULL};
 	if(execvp(filename,argv) == -1){
-		cout << errno << endl;
+		cout << "execvp error" << endl;
 	}
 	exit(0);
         
