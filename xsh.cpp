@@ -146,6 +146,7 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalComman
 		//kill all child processes
 		kill(pgid, 15);
 		//report back whatever is given
+		cout << stoi(args.at(1)) << endl;
 		exit(stoi(args.at(1)));
 	}
 	else if(args.size() > 1)
@@ -159,6 +160,7 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalComman
 		//else exit
 		//kill all child processes
 		kill(pgid, 15);
+		cout << 0 << endl;
 		//exit normally
 		exit(0);
 	}
@@ -215,7 +217,11 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalComman
          ic ->addCmdToHistory(preservedLine);
      }
      else if (args.at(0) == "pause"){
+	//pause child processes
+	kill(pgid, 20);
          ic->pauseCmd();
+	//resume child processes
+	kill(pgid, 18);
          ic ->addCmdToHistory(preservedLine);
      }
      else if(args.at(0) == "kill"){
