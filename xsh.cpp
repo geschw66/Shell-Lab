@@ -8,12 +8,14 @@
 #include "BasicTasks.h"
 #include "InternalCommands.h"
 #include "ExternalCommands.h"
+#include "Pipe.h"
 #include <ctype.h>
 #include <unistd.h>
+#include <algorithm>
 
 using namespace std;
 void xshLoop();
-int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalCommands* ec);
+int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalCommands* ec,Pipe* pipe);
 bool ValidateCommandLine(int argc, char *argv[]);
 void printHelp(string arg);
 
@@ -159,7 +161,7 @@ void xshLoop(void)
  *   this is created so that it can be recalled when the repeat command is issued
  */
 
-int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalCommands* ec)
+int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalCommands* ec,Pipe* pipe)
 {
 	  //Variables for handling input
       vector<string> args;
@@ -178,6 +180,17 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalComman
           cout <<"the command line is empty" << endl;
 #endif
        
+     }else if(find(args.begin(), args.end(), "|") != args.end()){
+#ifdef _VDEBUG
+         cout << "We have a pipe!"<<endl;
+        for(int i = 0; i < args.size(); i++)
+        {
+        	cout<<args.at(i)<< endl;
+        	cout << "- - - -"<<endl;
+        }
+#endif
+        pipe->pipeCommand(args,preservedLine);
+        ic->addCmdToHistory(preservedLine);
      }
      else if(args.at(0) =="exit")
      {
@@ -292,7 +305,7 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalComman
 			// }
 		 }
 		 //get history command, recall this function
-		 status = HandleInput((char *)ic->getHistoryCommand(historyItem).c_str(), bt, ic, ec);
+		 status = HandleInput((char *)ic->getHistoryCommand(historyItem).c_str(), bt, ic, ec,pipe);
          args.clear();
 
 		 //do not save repeat command to history list, this mimicks the bang command in linux

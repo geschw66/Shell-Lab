@@ -37,7 +37,7 @@ public:
 	virtual ~Pipe();
 
 	// public interface to pipe command.
-    void pipeCommand(vector<string> args, char * line);
+    void pipeCommand(vector<string> &args, char * line);
 
 private:
 	cmdLine * head;//for linked list of structs that contain a char** of the commands for execvp.
@@ -49,11 +49,13 @@ private:
 	void runPipedCmds(char* userInput);
 	//Clean up (deallocate the dynamic memory of the linear linked list.
 	void cleanUp();
-	int getCmdArrayLength(int i, vector<string>& cmd);
+	int getCmdArrayLength(int i, vector<string> cmd);
 
 	//pipeCount persists as long as the linked list persists.
 	unsigned int pipeCount;
-
+    
+        void printLinkedList();
+        
 };
 
 #endif /* PIPE_H_ */

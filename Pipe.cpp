@@ -9,7 +9,16 @@
  */
 
 #include "Pipe.h"
-
+#include <cstdlib>
+#include <stdio.h>
+#include <iostream>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string>
+#include <vector>
 /**
  * Constructor
  */
@@ -21,6 +30,8 @@ Pipe::Pipe() : pipeCount(0),
  * Destructor
  */
 Pipe::~Pipe() {
+ 
+   cleanUp();
 
 }
 
@@ -29,16 +40,18 @@ Pipe::~Pipe() {
  * Counts the number of substrings prior to the appearance of
  *     a "|"
  */
-int Pipe::getCmdArrayLength(int i, vector<string>& cmd) {
+int Pipe::getCmdArrayLength(int i, vector<string> cmd) {
 
     //Count up to and including the pipe | becuase we need
     //  # substrings + a NULL element for execvp().
-    while (cmd.at(i) != "|" || cmd.at(i) != cmd.end())
+    int j = 0;
+    while (  i  <  cmd.size() && cmd.at(i) != "|" )
     {
-        i++;
+         i++;
+         j++; // iterating the size of the array.
     }
 
-    return i;
+    return j;
 }
 
 /**
@@ -54,28 +67,46 @@ void Pipe::setupPipe(vector<string> cmd)
     // parameter of a command. Deep copy stuff HERE.
     // Each Node represents a separate command and its parameters
     cmdLine  * newNode;
-    int currentStart = 0;
+    int cmdStart = 0;
     for(vector<string>::const_iterator it = cmd.begin(); it != cmd.end(); it++)
     {
         newNode = new cmdLine;
-        cout <<"The current command starts at element: "<<currentStart<<endl;
-        int cmdLength = getCmdArrayLength(currentStart, cmd);
 
-        cout <<"The next command will start at element: "<<currentStart;
-        cout <<"There were "<<cmdLength<<" substrings in this command"<<endl;
+#ifdef _VDEBUG
 
+        cout <<"The current command starts at element: "<<cmdStart<<endl;
+
+#endif
+        if(cmdStart >=cmd.size())
+        {
+           return;
+        }
+        int cmdLength = getCmdArrayLength(cmdStart, cmd);
+        cmdStart += cmdLength +1;
+#ifdef _VDEBUG
+
+        cout <<"The next command will start at element: "<<cmdStart;
         //create a new char * string array:
+        cout <<". There were "<<cmdLength<<" substrings in this command"<<endl;
+#endif
         newNode->arguments = new char*[cmdLength+1];
         int i = 0;
-        while (it != "|")
+        while (it != cmd.end() && *it != "|")
         {
             //Dynamic allocation of memory:
-            newNode->arguments[i] = new char[strlen(it->c_str()) + 1];
+	    newNode->arguments[i] = new char[it->length() + 1];
             strcpy(newNode->arguments[i], it->c_str());
+            
+            //move the iterator one.
             it++;
+            //iterate to the next element of the char ** array.
             i++;
         }
+        newNode->arraLength = cmdLength +1;
 
+#ifdef _VDEBUG
+        cout <<"arraLength: "<<newNode->arraLength<<endl;
+#endif
         newNode->arguments[i] = NULL; //last element for execvp needs to be NULL
         newNode->next = NULL;
 
@@ -102,13 +133,17 @@ void Pipe::setupPipe(vector<string> cmd)
  *  pipeCommand():
  *  Public entrance to pipe command feature.
  */
-void Pipe::pipeCommand(vector<string> args, char * line) {
+void Pipe::pipeCommand(vector<string> &args, char * line) {
 
-    setupPipe(args);    //sets up the pipe.
-    runPipedCmds(line);    //runs the pipe.
+#ifdef _VDEBUG
+    cout <<"before setupPipe call"<<endl;
+#endif
+
+    setupPipe(args);      //sets up the pipe.
+    runPipedCmds(line);   //runs the pipe.
     cleanUp();            //destroys the linked list and frees memory.
-
 }
+
 /**
  *  runPipedCmds():
  *  The meat of the running piped commands.
@@ -116,8 +151,17 @@ void Pipe::pipeCommand(vector<string> args, char * line) {
 void Pipe::runPipedCmds(char* userInput)
 {
 
+#ifdef _VDEBUG
+    printLinkedList();
+#endif
+
     cmdLine * cmd = head;
     int numPipes = countPipes(userInput);
+
+#ifdef _VDEBUG
+    cout <<"Number of Pipes: "<< numPipes << endl;
+#endif
+
     int status;
     int i = 0;
     pid_t pid;
@@ -142,7 +186,7 @@ void Pipe::runPipedCmds(char* userInput)
             {
                 if(dup2(pipefds[j + 1], 1) < 0)
                 {
-                    perror("dup2");
+                    perror("1st dup2");
                     exit(EXIT_FAILURE);
                 }
             }
@@ -150,7 +194,7 @@ void Pipe::runPipedCmds(char* userInput)
             //if not first command&& j!= 2*numPipes
             if(j != 0 ){
                 if(dup2(pipefds[j-2], 0) < 0){
-                    perror(" dup2");///j-2 0 j+1 1
+                    perror(" 2nd dup2");///j-2 0 j+1 1
                     exit(EXIT_FAILURE);
 
                 }
@@ -187,7 +231,7 @@ void Pipe::runPipedCmds(char* userInput)
     {
         wait(&status);
     }
-
+    
 }
 
 /**
@@ -197,8 +241,8 @@ void Pipe::runPipedCmds(char* userInput)
 int  Pipe::countPipes(char * userInput)
 {
     int count = 0;
-
     int length = strlen(userInput);
+
     for(int i=0; i < length; i++)
     {
        if(userInput[i]== '|')
@@ -243,3 +287,32 @@ void Pipe::cleanUp()
     }
 
 }
+/**
+ * printLinkedList():
+ *   Prints out the linked list for debugging purposes.
+ */
+void Pipe::printLinkedList()
+{
+       cmdLine * current = head;
+       while(current)
+       { 
+          for(int i= 0; i < current->arraLength; i++)
+          {
+              if( current->arguments[i] !=NULL){
+              	  int length =  strlen(current->arguments[i]);
+              	  cout <<" ["<< i <<"] ";
+             	  for(int j=0; j < length; j++)
+             	  {
+          		cout<<current->arguments[i][j];
+             	  }
+             
+             } else{
+                  
+               cout <<" ["<< i <<"] NULL";
+             }
+          }
+          cout<<endl;
+          current = current->next;
+      } 
+
+}    
