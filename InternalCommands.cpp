@@ -76,7 +76,7 @@ void InternalCommands::pauseCmd(){
  * wait l
  * wait for process with pid l to complete, if l = -1 wait for all children
  */
-//void InternalCommands::waitCmd(vector<string> args){
+void InternalCommands::waitCmd(vector<string> args){
 //    
 //    pid_t child, endID;
 //    
@@ -109,7 +109,7 @@ void InternalCommands::pauseCmd(){
 //            }
 //        }
 //    }
-//}
+}
 
 /**
  * Searches through the environMap to find the given key value
