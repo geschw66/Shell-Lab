@@ -82,6 +82,7 @@ void xshLoop(void)
   BasicTasks bt;
   InternalCommands ic;
   ExternalCommands ec;
+  Pipe pipe;
   char * tempLine = NULL;
   char *line = NULL;
   int status;
@@ -119,7 +120,7 @@ void xshLoop(void)
               while(getline(batchFile, bLine)){
                   if(!bLine.empty() && bLine.at(0) != '#'){
                       char * cmd = &bLine[0u];
-                      status = HandleInput(cmd, &bt, &ic, &ec);
+                      status = HandleInput(cmd, &bt, &ic, &ec, &pipe);
                       if(status == -1){
                           return;
                       }
@@ -140,7 +141,7 @@ void xshLoop(void)
           return;
          }
 
-         status = HandleInput(line, &bt, &ic, &ec);
+         status = HandleInput(line, &bt, &ic, &ec, &pipe);
          //if -1, exit command was sent
          if(status == -1)
          {
