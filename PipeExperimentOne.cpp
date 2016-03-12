@@ -23,6 +23,7 @@ struct cmdLine
 void runPipedCommands(cmdLine* command, char* userInput);
 int  countPipes(char * userInput);
 void  sigtstp_handler(int sig);
+void sigHandler(int signum); //GEN HanDLER.
 //const std::vector<char*> stringToCharVector(std::vector<cmdLine>::iterator & it);
 
 int main(int argc, char *argv[])
@@ -48,7 +49,7 @@ int main(int argc, char *argv[])
 	cmdLine * cmdStruct2 = new cmdLine;
 	cmdStruct->next = cmdStruct2;
 
-    cmdStruct2->arguments = (char**)malloc(sizeof *cmdStruct2->arguments * 3);
+    cmdStruct2->arguments = (char**)malloc(sizeof *cmdStruct2->arguments * 4);
      if (cmdStruct2->arguments)
      {
      	cmdStruct2->arguments[0] =(char*) malloc(sizeof *cmdStruct2->arguments[0]  * 12);
@@ -63,39 +64,62 @@ int main(int argc, char *argv[])
      	cmdStruct2->arguments[3] = NULL;
      }
 
+     cmdStruct2->next = NULL;
+
     runPipedCommands( cmdStruct,(char *)userInput.c_str());
 
     cout<<"free memory for first array";
 
-//    for(int i = 0; i < 2 ; i++){
-//
-//    	delete[] cmdStruct->arguments[i];
-//    	cmdStruct->arguments[i] = NULL;
-//    }
-//
-//
-//
-//    delete[]cmdStruct->arguments;
-//    cmdStruct->arguments = NULL;
-//
-////    free(cmdStruct->next);
-////    cmdStruct->next = NULL;
-//
-//    delete []cmdStruct;
-//    cmdStruct = NULL;
-//
-//    cout<<"free memory for second array";
-//    for(int i = 0; i < 3 ; i++){
-//    	delete [] cmdStruct2->arguments[i];
-//    	cmdStruct2->arguments[i] = NULL;
-//    }
-//
-//    delete []cmdStruct2->arguments;
-//    cmdStruct2->arguments = NULL;
-//
-//    delete cmdStruct2;
-//    cmdStruct2 = NULL;
+    for(int i = 0; i < 2 ; i++)
+    {
+      if(cmdStruct->arguments[i]!=NULL)
+      {
+    	if(cmdStruct->arguments[i] != NULL)
+    	{
+    	   free(cmdStruct->arguments[i]);
+    	   cmdStruct->arguments[i] = NULL;
+    	}
+      }
+    }
 
+    if(cmdStruct->arguments != NULL)
+    {
+       free(cmdStruct->arguments);
+       cmdStruct->arguments = NULL;
+
+    }
+
+    if(cmdStruct != NULL)
+    {
+       free (cmdStruct);
+       cmdStruct = NULL;
+
+    }
+
+    cout << "free memory for second array"<<endl;
+    for(int i = 0; i < 4 ; i++)
+    {
+    	if(cmdStruct2->arguments[i] != NULL)
+    	{
+    	   free(cmdStruct2->arguments[i]);
+    	   cmdStruct2->arguments[i] = NULL;
+    	}
+    }
+
+    if(cmdStruct2->arguments != NULL)
+    {
+    	free(cmdStruct2->arguments);
+    	cmdStruct2->arguments = NULL;
+    }
+
+    if(cmdStruct2 != NULL)
+    {
+      free(cmdStruct2);
+      cmdStruct2 = NULL;
+    }
+
+    cout << "Are we there yet" << endl;
+    exit(0);
 }
 
 
@@ -117,10 +141,8 @@ void runPipedCommands(cmdLine* command, char* userInput) {
 
     int j = 0;
     while(command) {
-        pid = fork();
-        if(pid == 0)
+        if((pid = fork())==0)
         {
-
             //if not last command
             if(command->next)
             {
@@ -160,18 +182,6 @@ void runPipedCommands(cmdLine* command, char* userInput) {
         j+=2;
     }
 
-    //Parent closes the pipes and
-    for(i = 0; i < 2 * numPipes; i++)
-    {
-        close(pipefds[i]);
-    }
-
-//    //wait for children...
-//    for(i = 0; i < numPipes + 1; i++)
-//    {
-//       //sleep(10000);
-//       wait(&status);
-//    }
 
 
      while(( pid = waitpid(-1,&status, WNOHANG|WUNTRACED)) == -1)
@@ -180,13 +190,24 @@ void runPipedCommands(cmdLine* command, char* userInput) {
              {
             	 sigtstp_handler(20);
 
-            	 write(0,"child stopped", 15);
-
              }else if (WIFEXITED(status)){
 
-                 write(0,"child exited",13);
 	         }else{
-	        	 perror("waitpid error");
+	        	  //catch signals
+	        	  //catch signals
+	        	  signal(SIGINT, sigHandler);
+	        	  signal(SIGQUIT, sigHandler);
+	        	  signal(SIGCONT, sigHandler);
+	        	  signal(SIGTSTP, sigHandler);
+	        	  signal(SIGABRT, sigHandler);
+	        	  signal(SIGALRM, sigHandler);
+	        	  signal(SIGHUP, sigHandler);
+	        	  signal(SIGTERM, sigHandler);
+	        	  signal(SIGUSR1, sigHandler);
+	        	  signal(SIGUSR2, sigHandler);
+	        	  cout <<"Caught an unknown signal"<<endl;
+	        	  cout <<endl;
+	        	  exit(EXIT_FAILURE);
 	         }
 	}
 
@@ -215,3 +236,30 @@ void  sigtstp_handler(int sig)
 	signal(SIGTSTP, sigtstp_handler);
 
 }
+
+
+void sigHandler(int signum){
+
+    switch(signum){
+        case SIGINT:
+            //if foreground process
+                //kill(pid_foreground, SIGINT)
+            break;
+        case SIGQUIT:
+            //if foreground process
+                //kill(pid_foreground, SIGQUIT)
+            break;
+        case SIGCONT:
+            //if foreground process
+                //kill(pid_foreground, SIGCONT)
+            break;
+        case SIGTSTP:
+            //if foreground process
+                //kill(pid_foreground, SIGSTP)
+            break;
+        default:
+            //ignore
+            break;
+    }
+}
+

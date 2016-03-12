@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <signal.h>
 #include <stdio.h>
@@ -76,6 +77,7 @@ void xshLoop(void)
   BasicTasks bt;
   InternalCommands ic;
   ExternalCommands ec;
+  char * tempLine = NULL;
   char *line = NULL;
   int status;
 
@@ -97,22 +99,52 @@ void xshLoop(void)
      cout <<"xsh >> ";
      //Reading line user inputs:
      line =(char *) bt.readLine();
+      //deep copy to ensure no tampering
+      tempLine = new char[strlen(line) +1];
+      strcpy(tempLine, line);
+      
+      //check for batch file
+      vector<string> args;
+      bt.parseLine(tempLine,args);
+      if(args.at(0) == "-f" && args.size() == 2){
+          ifstream batchFile(args.at(1));
+          if (batchFile.is_open()){
+              string bLine;
+              int i = 1;
+              while(getline(batchFile, bLine)){
+                  if(!bLine.empty() && bLine.at(0) != '#'){
+                      char * cmd = &bLine[0u];
+                      status = HandleInput(cmd, &bt, &ic, &ec);
+                      if(status == -1){
+                          return;
+                      }
+                  }
+                  // cout << i <<endl;
+                  ++i;
+              }
+          }
+          else {
+              cout << "Error opening batch file" <<endl;
+          }
+      }
+      else{
 
-     //Not likely but if this is true; BAIL!
-     if(line == NULL){
-       cout<<"line is equal to NULL"<<endl;
-      return;
-     }
+         //Not likely but if this is true; BAIL!
+         if(line == NULL){
+           cout<<"line is equal to NULL"<<endl;
+          return;
+         }
 
-	 status = HandleInput(line, &bt, &ic, &ec);
-	 //if -1, exit command was sent
-	 if(status == -1)
-	 {
-		 return;
-	 }
+         status = HandleInput(line, &bt, &ic, &ec);
+         //if -1, exit command was sent
+         if(status == -1)
+         {
+             return;
+         }
 
-     delete [] line ;
-     line = NULL;
+         delete [] line ;
+         line = NULL;
+      } 
 
   } while (status);
 
