@@ -104,7 +104,7 @@ void InternalCommands::waitCmd(vector<string> args){
             if(is_number(p)){
                 pid_t done =  waitpid(stoi(p), NULL, WUNTRACED);
                 if(done == -1){
-                    cout << "error" <<endl;
+                    cout << "Error waiting for process" <<endl;
                 }
             }
         }
