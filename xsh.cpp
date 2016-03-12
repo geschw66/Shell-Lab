@@ -144,7 +144,7 @@ void xshLoop(void)
 
          delete [] line ;
          line = NULL;
-      } 
+      }
 
   } while (status);
 
@@ -318,6 +318,7 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalComman
          //Call External
          int fg = (args.at(args.size()-1).at(0)!='&');
          ec->callExternal(fg, args);
+         ic->addCmdToHistory(preservedLine);
          
      }
 
