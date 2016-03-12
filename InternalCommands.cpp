@@ -404,7 +404,7 @@ string InternalCommands::getHistoryCommand(int n)
      }
      else {
          char*W1 = &(args.at(1))[0u];
-         if(unsetenv(W1)!= -1){
+         if(unsetenv(W1)== -1){
              cout << "Error Removing from Environment" <<endl;
          }
      }
