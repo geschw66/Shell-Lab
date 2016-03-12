@@ -72,6 +72,46 @@ void InternalCommands::pauseCmd(){
 }
 
 /**
+ * waitCmd(vector<string> args
+ * wait l
+ * wait for process with pid l to complete, if l = -1 wait for all children
+ */
+void InternalCommands::waitCmd(vector<string> args){
+    
+    pid_t child, endID;
+    
+    if(args.size() != 2){
+        cout <<"usege: wait pid (-1 for child processes)" <<endl;
+    }
+    else {
+        string p = args.at(1);
+        
+        //wait for child processes
+        if(p == "-1"){
+            while (true) {
+                cout << "child" <<endl;
+                pid_t done = wait(0);
+                if (done == -1) {
+                    if (errno == ECHILD) {
+                        cout << "childs terminated" <<endl;
+                        break; // no more child processes
+                    }
+                }
+            }
+            
+        }
+        else{
+            if(is_number(p)){
+                pid_t done =  waitpid(stoi(p), NULL, WUNTRACED);
+                if(done == -1){
+                    cout << "error" <<endl;
+                }
+            }
+        }
+    }
+}
+
+/**
  * Searches through the environMap to find the given key value
  */
 int InternalCommands::showEnvironValue(const string& arg)

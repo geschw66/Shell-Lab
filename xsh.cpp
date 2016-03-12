@@ -261,6 +261,10 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalComman
 	kill(pgid, 18);
          ic ->addCmdToHistory(preservedLine);
      }
+     else if(args.at(0) == "wait"){
+         ic->waitCmd(args);
+         ic->addCmdToHistory(preservedLine);
+     }
      else if(args.at(0) == "kill"){
          ic->killCmd(args);
          ic->addCmdToHistory(preservedLine);

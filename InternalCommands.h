@@ -23,6 +23,9 @@ class InternalCommands
    void clearScreen();
    //pause: Pause the shell until the Enter button is pressed
    void pauseCmd();
+    
+   //wait: wait for process to finish
+   void waitCmd(vector<string> args);
    //show: show W1 W2 ... : display the word(s) followed by a newline
    void showCommand(vector<string> args);
 
