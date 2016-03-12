@@ -1,4 +1,4 @@
-show W1 W2     : display word(s) followed by a new line
+show W1 W2 ..  : display word(s) followed by a new line
 set W1 W2      : set the value of the local variabale W1 to the value W2
 unset W1       : unset a previously set local variable W1
 export W1 W2   : export the global variable W1 with the value W2 to the environment
