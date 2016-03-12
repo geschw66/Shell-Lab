@@ -14,6 +14,7 @@ using namespace std;
 void xshLoop();
 int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalCommands* ec);
 bool ValidateCommandLine(int argc, char *argv[]);
+void printHelp(string arg);
 
 int pgid; //process group id
 
@@ -37,26 +38,30 @@ return 0;
  */
 void sigHandler(int signum){
     
-    switch(signum){
-        case SIGINT:
-            //if foreground process
-                //kill(pid_foreground, SIGINT)
-            break;
-        case SIGQUIT:
-            //if foreground process
-                //kill(pid_foreground, SIGQUIT)
-            break;
-        case SIGCONT:
-            //if foreground process
-                //kill(pid_foreground, SIGCONT)
-            break;
-        case SIGTSTP:
-            //if foreground process
-                //kill(pid_foreground, SIGSTP)
-            break;
-        default:
-            //ignore
-            break;
+    int pid = getpid();
+
+    //if foreground process
+    if(pid == 0)
+    {
+    	switch(signum){
+        	case SIGINT:
+			cout << "Sig int case reached" << endl;
+            		kill(pid, SIGINT);
+            	break;
+        	case SIGQUIT:
+            		kill(pid, SIGQUIT);
+            	break;
+        	case SIGCONT:
+            		kill(pid, SIGCONT);
+            	break;
+        	case SIGTSTP:
+			cout << "Sig stop case reached" << endl;
+            		kill(pid, SIGSTOP);
+            	break;
+        	default:
+            		//ignore
+       		break;
+    	}
     }
 }
     
@@ -259,6 +264,17 @@ int HandleInput(char* line, BasicTasks* bt, InternalCommands* ic, ExternalComman
 
 	     return status;
 	 }
+	else if(args.at(0) == "help")
+	{
+		if(args.size() >= 2)
+		{
+			printHelp(args.at(1));
+		}
+		else
+		{
+			printHelp("");
+		}
+	}
      else
      {
 #ifdef _VDEBUG
@@ -326,4 +342,21 @@ bool ValidateCommandLine(int argc, char *argv[])
  return status;
 }
 
-
+/*
+ * printHelp()
+ * used for displaying help on the screen
+ */
+void printHelp(const string arg)
+{
+	string command = "more";
+	if(arg != "")
+	{
+		command += " +/\"" + arg + "\"";
+	}
+	command += " manual.txt";
+	
+	const char* input = command.c_str();
+	
+	cout << input << endl;
+	system(input);
+}
