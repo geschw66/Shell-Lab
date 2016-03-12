@@ -1,0 +1,17 @@
+show W1 W2     : display word(s) followed by a new line
+set W1 W2      : set the value of the local variabale W1 to the value W2
+unset W1       : unset a previously set local variable W1
+export W1 W2   : export the global variable W1 with the value W2 to the environment
+unexport W     : unexport the global variable W from the environment
+environ        : display a listing of all environment strings that are currently defined
+chdir W        : change the current directory
+exit l         : exit the shell and return status l, return 0 if no l specified
+wait l         : shell waits for process with PID==l to complete, -1 waits for all processes
+clr            : clear the screen and display
+dir            : list the contents of the current directory
+echo <comment> : display <comment> on the stdout followed by new line
+help           : display user manual using the more filter
+pause          : pause the operation fo the shell until the 'Enter' key is pressed
+history n      : list the last n executed commands or all commands, whichever is greater. if not specified will display all
+repeat n       : prints to screen, then executes the nth history command
+kill [-n] pid  : sends SIGKILL to process pid with signal n, if no n specified SIGTERM is used
