@@ -18,6 +18,7 @@ bool ValidateCommandLine(int argc, char *argv[]);
 void printHelp(string arg);
 
 int pgid; //process group id
+string manualLocation;
 
 int main(int argc, char * argv[])
 {
@@ -25,6 +26,8 @@ int main(int argc, char * argv[])
     setsid();
     //get process group id
     pgid = getpgid(0);
+    manualLocation = string(get_current_dir_name());
+    manualLocation += string("/") + string("manual.txt");
 
     ValidateCommandLine(argc, argv);
     //command loop:
@@ -385,10 +388,9 @@ void printHelp(const string arg)
 	{
 		command += " +/\"" + arg + "\"";
 	}
-	command += " manual.txt";
+	command += " " + manualLocation;
 	
 	const char* input = command.c_str();
 	
-	cout << input << endl;
 	system(input);
 }
